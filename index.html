@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>天中殺タイプ診断｜㐂びの暦</title>
+  <meta property="og:title" content="天中殺タイプ診断｜㐂びの暦">
+  <meta property="og:description" content="生年月日を入れるだけで、あなたの天中殺タイプが分かります。">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "YuMincho", "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif;
+      background-color: #c9b890;
+      background-image:
+        repeating-linear-gradient(45deg, rgba(160,130,80,0.04) 0 2px, transparent 2px 6px),
+        radial-gradient(at 20% 30%, rgba(180,150,100,0.12) 0%, transparent 50%),
+        radial-gradient(at 80% 70%, rgba(160,130,80,0.10) 0%, transparent 50%);
+      min-height: 100vh;
+      padding: 16px;
+      color: #3a2d1e;
+    }
+    .container { max-width: 640px; margin: 0 auto; }
+    .card {
+      background: #fbf4e2;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(180,140,80,0.025) 0 1px, transparent 1px 4px),
+        repeating-linear-gradient(90deg, rgba(180,140,80,0.025) 0 1px, transparent 1px 4px);
+      border-radius: 6px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(60,40,20,0.18), 0 0 0 1px #c9b890;
+      margin-bottom: 16px;
+    }
+    .site-header { text-align: center; padding: 20px 0 8px; }
+    .site-seal {
+      display: inline-block; background: #a83a2c; color: #fbf4e2;
+      border: 2px solid #8a2e22; border-radius: 3px;
+      width: 54px; height: 54px; font-size: 32px; line-height: 50px; font-weight: 600;
+      transform: rotate(-4deg); margin-bottom: 8px;
+    }
+    .site-title { font-size: 13px; color: #7a6a4a; letter-spacing: 3px; margin-bottom: 4px; }
+    .site-subtitle { font-size: 20px; color: #3a2d1e; letter-spacing: 2px; font-weight: 500; }
+    .today-banner {
+      background: linear-gradient(135deg, #3a2d1e 0%, #5a3a1e 100%);
+      color: #fbf4e2; border-radius: 6px; padding: 14px 18px; margin-bottom: 16px;
+      font-size: 13px; line-height: 1.7; letter-spacing: 0.5px;
+    }
+    .today-date { font-size: 11px; color: #c9b890; margin-bottom: 4px; }
+    .today-kanshi { font-size: 17px; font-weight: 600; color: #e8d5a0; margin-bottom: 4px; }
+    .today-note { font-size: 12px; color: #c9b890; }
+    .triple-alert {
+      background: #a83a2c; color: #fbf4e2; padding: 8px 12px;
+      border-radius: 4px; margin-top: 8px; font-size: 12px; font-weight: 500; letter-spacing: 0.3px;
+    }
+    .input-lead { text-align: center; font-size: 14px; color: #5a3a1e; margin-bottom: 16px; line-height: 1.7; }
+    .date-row { display: flex; gap: 6px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+    .date-field { display: flex; align-items: center; gap: 4px; }
+    .date-input {
+      width: 72px; padding: 12px 8px; border-radius: 6px; border: 2px solid #c9a878;
+      background: #fff; font-size: 18px; font-family: inherit; text-align: center; color: #3a2d1e;
+      -moz-appearance: textfield;
+    }
+    .date-input.year-input { width: 88px; }
+    .date-input:focus { outline: none; border-color: #a83a2c; }
+    .date-input::-webkit-outer-spin-button, .date-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .date-label { font-size: 15px; color: #5a3a1e; }
+    .btn-calc {
+      display: block; width: 100%; padding: 16px;
+      background: linear-gradient(135deg, #a83a2c 0%, #7a2a1e 100%);
+      color: #fbf4e2; border: none; border-radius: 6px; font-family: inherit;
+      font-size: 17px; font-weight: 500; letter-spacing: 2px; cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-calc:hover { opacity: 0.88; }
+    .error { color: #a83a2c; font-size: 13px; text-align: center; margin-top: 10px; min-height: 18px; }
+    .result-area { display: none; }
+    .type-card {
+      background: linear-gradient(135deg, #3a2d1e 0%, #5a3a1e 100%);
+      border-radius: 8px; padding: 28px 20px; text-align: center; color: #fbf4e2;
+      position: relative; overflow: hidden;
+    }
+    .type-card::before {
+      content: ""; position: absolute; top: -30px; right: -30px;
+      width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.04);
+    }
+    .type-label { font-size: 11px; color: #c9b890; letter-spacing: 3px; margin-bottom: 10px; }
+    .type-name { font-size: 32px; font-weight: 600; color: #e8d5a0; letter-spacing: 2px; margin-bottom: 6px; }
+    .type-direction { font-size: 13px; color: #c9b890; margin-bottom: 14px; }
+    .type-mission { font-size: 16px; color: #fbf4e2; letter-spacing: 1px; border-top: 1px solid rgba(201,184,144,0.3); padding-top: 14px; }
+    .today-status { padding: 14px 18px; border-radius: 6px; font-size: 14px; line-height: 1.7; }
+    .today-status.normal { background: #f0ebe0; border-left: 4px solid #7a6a4a; }
+    .today-status.tenchu { background: #fff3cd; border-left: 4px solid #d35400; }
+    .today-status.triple { background: #fde8e8; border-left: 4px solid #a83a2c; }
+    .status-head { font-size: 11px; color: #7a6a4a; letter-spacing: 2px; margin-bottom: 6px; }
+    .status-main { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .status-main.ok { color: #3a6a3a; }
+    .status-main.caution { color: #d35400; }
+    .status-main.alert { color: #a83a2c; }
+    .status-note { font-size: 13px; color: #5a4a3a; line-height: 1.8; }
+    .section-head {
+      font-size: 13px; color: #5a3a1e; letter-spacing: 2px;
+      border-bottom: 1px solid #c9a878; padding-bottom: 6px; margin-bottom: 14px;
+    }
+    .section-head::before { content: "\25ac"; color: #a83a2c; margin-right: 6px; }
+    .detail-row { padding: 10px 0; border-bottom: 1px dotted #c9a878; font-size: 13px; line-height: 1.7; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label {
+      display: inline-block; background: #ede1c8; color: #5a3a1e;
+      font-size: 10px; padding: 2px 8px; border-radius: 10px; margin-right: 6px; margin-bottom: 4px;
+    }
+    .period-box { background: #f5efe0; border-radius: 6px; padding: 14px 16px; }
+    .period-row { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; border-bottom: 1px dotted #c9a878; font-size: 14px; }
+    .period-row:last-child { border-bottom: none; }
+    .period-type { font-size: 12px; color: #7a6a4a; flex-shrink: 0; margin-right: 12px; }
+    .period-value { font-weight: 500; color: #3a2d1e; font-size: 13px; }
+    .period-value.alert { color: #a83a2c; }
+    .all-types-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    @media (max-width: 400px) { .all-types-grid { grid-template-columns: 1fr; } }
+    .type-chip { background: #f5efe0; border: 1px solid #c9a878; border-radius: 6px; padding: 10px 12px; font-size: 12px; line-height: 1.6; }
+    .type-chip.mine { background: #3a2d1e; border-color: #3a2d1e; color: #e8d5a0; }
+    .type-chip-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+    .type-chip.mine .type-chip-name { color: #e8d5a0; }
+    .type-chip-dir { font-size: 10px; color: #7a6a4a; }
+    .type-chip.mine .type-chip-dir { color: #c9b890; }
+    .type-chip-desc { font-size: 11px; color: #5a4a3a; margin-top: 2px; }
+    .type-chip.mine .type-chip-desc { color: #c9b890; }
+    .cta-area { text-align: center; }
+    .cta-lead { font-size: 13px; color: #5a4a3a; line-height: 1.9; margin-bottom: 16px; }
+    .btn-cta {
+      display: block; padding: 14px 20px; border-radius: 6px; font-family: inherit;
+      font-size: 14px; font-weight: 500; letter-spacing: 1px; text-decoration: none;
+      cursor: pointer; border: none; margin-bottom: 10px; transition: opacity 0.2s;
+    }
+    .btn-cta:hover { opacity: 0.82; }
+    .btn-primary { background: linear-gradient(135deg, #a83a2c 0%, #7a2a1e 100%); color: #fbf4e2; }
+    .btn-secondary { background: #f5efe0; color: #3a2d1e; border: 1px solid #c9a878; }
+    .btn-tertiary { background: #3a2d1e; color: #e8d5a0; }
+    .share-row { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+    .btn-share { flex: 1; max-width: 220px; padding: 10px 12px; border-radius: 6px; font-family: inherit; font-size: 12px; text-align: center; cursor: pointer; border: none; font-weight: 500; transition: opacity 0.2s; }
+    .btn-share:hover { opacity: 0.82; }
+    .btn-copy-result { background: #ede1c8; color: #3a2d1e; }
+    .copy-done { font-size: 11px; color: #3a6a3a; text-align: center; margin-top: 6px; min-height: 16px; }
+    .disclaimer { font-size: 11px; color: #7a6a4a; line-height: 1.8; text-align: center; margin-top: 8px; }
+    .footer { text-align: center; font-size: 11px; color: #7a6a4a; padding: 20px 0 30px; line-height: 1.8; }
+    @media (max-width: 480px) { .type-name { font-size: 26px; } .card { padding: 18px 16px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="site-header">
+      <div class="site-seal">&#x3508;</div>
+      <div class="site-title">ナナフシ㐂の</div>
+      <div class="site-subtitle">㐂びの暦｜天中殺タイプ診断</div>
+    </div>
+
+    <div class="today-banner">
+      <div class="today-date" id="today-date-str"></div>
+      <div class="today-kanshi" id="today-kanshi-str"></div>
+      <div class="today-note" id="today-note-str"></div>
+      <div class="triple-alert" id="triple-alert" style="display:none;"></div>
+    </div>
+
+    <div class="card">
+      <div class="input-lead">
+        生年月日を入れるだけ<br>
+        <span style="font-size:12px;color:#7a6a4a;">あなたの天中殺タイプが分かります</span>
+      </div>
+      <div class="date-row">
+        <div class="date-field">
+          <input class="date-input year-input" id="year" type="tel" maxlength="4" placeholder="西暦">
+          <span class="date-label">年</span>
+        </div>
+        <div class="date-field">
+          <input class="date-input" id="month" type="tel" maxlength="2" placeholder="月">
+          <span class="date-label">月</span>
+        </div>
+        <div class="date-field">
+          <input class="date-input" id="day" type="tel" maxlength="2" placeholder="日">
+          <span class="date-label">日</span>
+        </div>
+      </div>
+      <button class="btn-calc" onclick="calculate()">タイプを調べる</button>
+      <div class="error" id="error"></div>
+    </div>
+
+    <div class="result-area" id="result">
+
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div class="type-card">
+          <div class="type-label">あなたの天中殺タイプ</div>
+          <div class="type-name" id="res-type-name">—</div>
+          <div class="type-direction" id="res-type-dir">—</div>
+          <div class="type-mission" id="res-type-mission">—</div>
+        </div>
+        <div style="padding:12px 16px;">
+          <div class="share-row">
+            <button class="btn-share btn-copy-result" onclick="copyResultText()">結果をコピーしてシェア</button>
+          </div>
+          <div class="copy-done" id="copy-done"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-head">今日のあなたの状態</div>
+        <div class="today-status" id="today-status-box">
+          <div class="status-head">TODAY</div>
+          <div class="status-main" id="today-status-main">—</div>
+          <div class="status-note" id="today-status-note">—</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-head">このタイプの本質</div>
+        <div id="detail-content"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-head">直近の天中殺期間</div>
+        <div class="period-box">
+          <div class="period-row">
+            <span class="period-type">年天中殺</span>
+            <span class="period-value" id="year-tenchu-period">—</span>
+          </div>
+          <div class="period-row">
+            <span class="period-type">月天中殺</span>
+            <span class="period-value" id="month-tenchu-period">—</span>
+          </div>
+          <div class="period-row">
+            <span class="period-type">日天中殺（直近）</span>
+            <span class="period-value" id="day-tenchu-period">—</span>
+          </div>
+        </div>
+        <div style="font-size:11px;color:#7a6a4a;margin-top:10px;line-height:1.7;">
+          天中殺は「整える時期」です。凶ではなく、次のステージへ向けてエネルギーをチャージする期間として使うのが◎
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-head">6つの天中殺タイプ</div>
+        <div class="all-types-grid" id="all-types-grid"></div>
+      </div>
+
+      <div class="card cta-area">
+        <div class="section-head">もっと詳しく知りたい方へ</div>
+        <div class="cta-lead">
+          天中殺以外にも「どんな星を持って生まれたか」<br>
+          「今の運気はどうか」を命式全体で確認できます
+        </div>
+        <a href="https://nanafushi-meishikicker.vercel.app/" target="_blank" class="btn-cta btn-primary">
+          ナナフシ命式チェッカー（無料・全機能版）→
+        </a>
+        <a href="https://kichi-dashboard.vercel.app/" target="_blank" class="btn-cta btn-secondary">
+          㐂びの暦 ダッシュボード →
+        </a>
+        <a href="https://www.instagram.com/hossoiossan/" target="_blank" class="btn-cta btn-tertiary">
+          @hossoiossan で算命学の話を発信中 →
+        </a>
+        <div class="disclaimer">
+          天中殺は個人の命式全体の中で読むものです<br>
+          詳しい鑑定はInstagramのDMからお問い合わせください
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer">
+      ナナフシ㐂の 㐂びの暦<br>
+      算命学をベースにした命式・天中殺の読み方<br>
+      <span style="color:#a83a2c;">@hossoiossan</span>
+    </div>
+
+  </div>
+
+  <script>
+    var STEMS    = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+    var BRANCHES = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+
+    function getJD(y, m, d) {
+      if (m <= 2) { y--; m += 12; }
+      var A = Math.floor(y / 100);
+      var B = 2 - A + Math.floor(A / 4);
+      return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + B - 1524.5;
+    }
+
+    function getSunLongitude(jd) {
+      var D = jd - 2451545.0;
+      var g = (357.529 + 0.98560028 * D) % 360;
+      var q = (280.459 + 0.98564736 * D) % 360;
+      var L = q + 1.915 * Math.sin(g * Math.PI / 180) + 0.020 * Math.sin(2 * g * Math.PI / 180);
+      return (L % 360 + 360) % 360;
+    }
+
+    function calcKanshiForDate(year, month, day) {
+      var jd      = getJD(year, month, day);
+      var baseJD  = 2451545;
+      var baseEto = 54;
+      var diff    = Math.round(jd - baseJD);
+      var dayIdx  = ((baseEto + diff) % 60 + 60) % 60;
+      var sunLon  = getSunLongitude(jd);
+      var solarTerms = [
+        {d:315,b:2},{d:345,b:3},{d:15,b:4},{d:45,b:5},
+        {d:75,b:6},{d:105,b:7},{d:135,b:8},{d:165,b:9},
+        {d:195,b:10},{d:225,b:11},{d:255,b:0},{d:285,b:1}
+      ];
+      var mBranchIdx = -1;
+      for (var i = 0; i < 12; i++) {
+        var cur = solarTerms[i], nxt = solarTerms[(i+1)%12];
+        var match = (cur.d < nxt.d) ? (sunLon >= cur.d && sunLon < nxt.d) : (sunLon >= cur.d || sunLon < nxt.d);
+        if (match) { mBranchIdx = cur.b; break; }
+      }
+      var sYear = year;
+      if (month === 1) sYear = year - 1;
+      else if (month === 2 && sunLon >= 270 && sunLon < 315) sYear = year - 1;
+      var yOffset = sYear - 1984;
+      var yIdx    = ((yOffset % 60) + 60) % 60;
+      var ykan = STEMS[yIdx % 10], yshi = BRANCHES[yIdx % 12];
+      var yStem = yIdx % 10;
+      var startMStem = (yStem % 5) * 2 + 2;
+      var mSteps     = (mBranchIdx - 2 + 12) % 12;
+      var mStemIdx   = (startMStem + mSteps) % 10;
+      var mkan = STEMS[mStemIdx], mshi = BRANCHES[mBranchIdx];
+      var dkan = STEMS[dayIdx % 10], dshi = BRANCHES[dayIdx % 12];
+      return { yIdx:yIdx, ykan:ykan, yshi:yshi, mkan:mkan, mshi:mshi, dayIdx:dayIdx, dkan:dkan, dshi:dshi };
+    }
+
+    var TENCHU_DATA = {
+      "戌亥": { name:"戌亥天中殺", dir:"北西", mission:"精神性を高める使命", branches:["戌","亥"] },
+      "申酉": { name:"申酉天中殺", dir:"西方",  mission:"伝統と革新を繋ぐ使命", branches:["申","酉"] },
+      "午未": { name:"午未天中殺", dir:"南方",  mission:"流れを断ち切る使命",   branches:["午","未"] },
+      "辰巳": { name:"辰巳天中殺", dir:"南東",  mission:"人と違う道を行く使命", branches:["辰","巳"] },
+      "寅卯": { name:"寅卯天中殺", dir:"東方",  mission:"引き継ぎ・継承の使命", branches:["寅","卯"] },
+      "子丑": { name:"子丑天中殺", dir:"北方",  mission:"何かを始める使命",     branches:["子","丑"] }
+    };
+
+    var TENCHU_DETAIL = {
+      "戌亥": {
+        essence: "精神性を高める使命",
+        family:  "家系の精神性を継承する宿命。精神的な積み上げが次の世代に伝わる",
+        improve: "形のないもの・精神世界・哲学・宗教・芸術に向かう時に才能が開く"
+      },
+      "申酉": {
+        essence: "伝統と革新を繋ぐ使命",
+        family:  "伝統と新しい時代をつなぐ立場。家系の中で「橋」の役割を担う",
+        improve: "古いものを学び、それを新しい形に変えて伝える時に力を発揮する"
+      },
+      "午未": {
+        essence: "流れを断ち切る使命",
+        family:  "古い流れを断ち切って新しく始める宿命。家系の転換点になる人",
+        improve: "過去のしがらみを断ち切り、自分だけの独自路線を進む時に輝く"
+      },
+      "辰巳": {
+        essence: "人と違う道を行く使命",
+        family:  "既存の枠に収まらない宿命。変わってると言われるのは才能の証",
+        improve: "独自の哲学・専門性を深めるほど、他の追随を許さない存在になれる"
+      },
+      "寅卯": {
+        essence: "引き継ぎ・継承の使命",
+        family:  "父親・先代との縁が深い。二代運・三代運として既存のものを発展させる",
+        improve: "狭く深い人間関係・丁寧さ・几帳面さ・精神性を高める学びの中で活きる"
+      },
+      "子丑": {
+        essence: "何かを始める使命",
+        family:  "家系の新しい流れを作る立場。ゼロから何かを立ち上げる宿命を持つ",
+        improve: "前例のないこと・ゼロから立ち上げる仕事の中で、真骨頂が現れる"
+      }
+    };
+
+    function getTenchuKey(dayIdx) {
+      var n = dayIdx + 1;
+      if (n >=  1 && n <= 10) return "戌亥";
+      if (n >= 11 && n <= 20) return "申酉";
+      if (n >= 21 && n <= 30) return "午未";
+      if (n >= 31 && n <= 40) return "辰巳";
+      if (n >= 41 && n <= 50) return "寅卯";
+      if (n >= 51 && n <= 60) return "子丑";
+      return null;
+    }
+
+    function initTodayBanner() {
+      var now = new Date();
+      var y = now.getFullYear(), m = now.getMonth()+1, d = now.getDate();
+      var today = calcKanshiForDate(y, m, d);
+      var weekDays = ["日","月","火","水","木","金","土"];
+      document.getElementById('today-date-str').textContent =
+        y + "年" + m + "月" + d + "日（" + weekDays[now.getDay()] + "）";
+      document.getElementById('today-kanshi-str').textContent =
+        today.ykan + today.yshi + "年　" + today.mkan + today.mshi + "月　" + today.dkan + today.dshi + "日";
+
+      var goBranches = ["午","未"];
+      var yHit = goBranches.indexOf(today.yshi) >= 0;
+      var mHit = goBranches.indexOf(today.mshi) >= 0;
+      var dHit = goBranches.indexOf(today.dshi) >= 0;
+      var hitCount = (yHit?1:0) + (mHit?1:0) + (dHit?1:0);
+      var alertEl = document.getElementById('triple-alert');
+      if (hitCount >= 3) {
+        document.getElementById('today-note-str').textContent = "今日は年・月・日すべてに午未が重なっています";
+        alertEl.style.display = "block";
+        alertEl.textContent = "午未天中殺の方へ：今日はトリプル天冲殺です。大きな決断・新規事業・契約は避け、内側を整える日にしてください";
+      } else if (hitCount === 2) {
+        document.getElementById('today-note-str').textContent = "午未天中殺の方にとって今日はダブル天冲殺です";
+        alertEl.style.display = "block"; alertEl.style.background = "#7a5a1e";
+        alertEl.textContent = "午未天中殺の方：ダブル天冲殺です。重要な決断は慎重に";
+      } else {
+        document.getElementById('today-note-str').textContent = "生年月日を入れると今日があなたにとって何の日か分かります";
+      }
+      window.todayKanshi = today;
+      window.todayY = y; window.todayM = m; window.todayD = d;
+    }
+
+    function calculate() {
+      var errorEl = document.getElementById('error');
+      var resultEl = document.getElementById('result');
+      errorEl.textContent = ""; resultEl.style.display = "none";
+      var year  = parseInt(document.getElementById('year').value.trim());
+      var month = parseInt(document.getElementById('month').value.trim());
+      var day   = parseInt(document.getElementById('day').value.trim());
+      if (!year || !month || !day) { errorEl.textContent = "年月日を入れてください"; return; }
+      if (isNaN(year)||isNaN(month)||isNaN(day)) { errorEl.textContent = "半角数字で入れてください"; return; }
+      if (year < 1900 || year > 2100) { errorEl.textContent = "年は1900〜2100で"; return; }
+      if (month < 1 || month > 12)    { errorEl.textContent = "月は1〜12で"; return; }
+      if (day < 1 || day > 31)        { errorEl.textContent = "日は1〜31で"; return; }
+
+      var k     = calcKanshiForDate(year, month, day);
+      var tKey  = getTenchuKey(k.dayIdx);
+      var tData = TENCHU_DATA[tKey];
+      var tDet  = TENCHU_DETAIL[tKey];
+
+      document.getElementById('res-type-name').textContent    = tData.name;
+      document.getElementById('res-type-dir').textContent     = tData.dir + "天中殺";
+      document.getElementById('res-type-mission').textContent = tData.mission;
+
+      showTodayStatus(tData);
+
+      document.getElementById('detail-content').innerHTML =
+        "<div class='detail-row'><span class='detail-label'>本質</span>" + tDet.essence + "</div>" +
+        "<div class='detail-row'><span class='detail-label'>家系の縁</span>" + tDet.family + "</div>" +
+        "<div class='detail-row'><span class='detail-label'>活かし方</span>" + tDet.improve + "</div>";
+
+      showPeriods(tData);
+      showAllTypes(tKey);
+
+      window.myTenchuResult = { name:tData.name, dir:tData.dir, mission:tData.mission, essence:tDet.essence, improve:tDet.improve };
+      resultEl.style.display = "block";
+      resultEl.scrollIntoView({ behavior:"smooth", block:"start" });
+    }
+
+    function showTodayStatus(tData) {
+      var box    = document.getElementById('today-status-box');
+      var mainEl = document.getElementById('today-status-main');
+      var noteEl = document.getElementById('today-status-note');
+      var td     = window.todayKanshi;
+      var branches = tData.branches;
+      var yHit = branches.indexOf(td.yshi) >= 0;
+      var mHit = branches.indexOf(td.mshi) >= 0;
+      var dHit = branches.indexOf(td.dshi) >= 0;
+      var hitCount = (yHit?1:0) + (mHit?1:0) + (dHit?1:0);
+      box.className = "today-status";
+      if (hitCount >= 3) {
+        box.classList.add("triple");
+        mainEl.className = "status-main alert"; mainEl.textContent = "⚠ 今日はトリプル天冲殺";
+        noteEl.textContent = "年・月・日すべてにあなたの天中殺の支が重なっています。大きな決断・新規事業・契約はこの期間を避け、内省と準備に充てる日にしてください。整えた分だけ、次のステージが上がります。";
+      } else if (hitCount === 2) {
+        box.classList.add("tenchu");
+        mainEl.className = "status-main caution"; mainEl.textContent = "⚡ ダブル天冲殺";
+        noteEl.textContent = "年・月どちらもあなたの天中殺の支です。重要な決断は期間明けに。今は準備と内省に使うのが◎";
+      } else if (dHit) {
+        box.classList.add("tenchu");
+        mainEl.className = "status-main caution"; mainEl.textContent = "⚡ 今日は日天中殺";
+        noteEl.textContent = "今日の日支はあなたの天中殺の支です。重要な決断は明日以降に。内側を整えたり、静かに考える日に向いています。";
+      } else if (mHit) {
+        box.classList.add("tenchu");
+        mainEl.className = "status-main caution"; mainEl.textContent = "⚡ 今月は月天中殺";
+        noteEl.textContent = "今月はあなたの天中殺月です。大きな判断は来月以降に。コツコツ準備する時間として使いましょう。";
+      } else if (yHit) {
+        box.classList.add("tenchu");
+        mainEl.className = "status-main caution"; mainEl.textContent = "⚡ 今年は年天中殺";
+        noteEl.textContent = "今年はあなたの天中殺年です。拡大より整理・整備・内側を深める年。種まきしておくと天中殺明けに花開きます。";
+      } else {
+        box.classList.add("normal");
+        mainEl.className = "status-main ok"; mainEl.textContent = "✅ 今日は通常運";
+        noteEl.textContent = "今日はあなたの天中殺と重なる干支はありません。動くなら今日がチャンス。気になっていたことを一歩前に進める日にしましょう。";
+      }
+    }
+
+    function showPeriods(tData) {
+      var b1 = tData.branches[0], b2 = tData.branches[1];
+      var searchY = window.todayY, searchM = window.todayM;
+
+      var yearEl = document.getElementById('year-tenchu-period');
+      yearEl.className = "period-value";
+      var yStart = null, yEnd = null;
+      for (var y = searchY; y < searchY + 13; y++) {
+        var ky = calcKanshiForDate(y, 3, 15);
+        if (ky.yshi === b1) { yStart = y;   yEnd = y+1; break; }
+        if (ky.yshi === b2) { yStart = y-1; yEnd = y;   break; }
+      }
+      if (yStart) {
+        yearEl.textContent = yStart + "年〜" + yEnd + "年";
+        if (searchY >= yStart && searchY <= yEnd) { yearEl.classList.add("alert"); yearEl.textContent += "（現在天中殺中）"; }
+      } else { yearEl.textContent = "—"; }
+
+      var monthEl = document.getElementById('month-tenchu-period');
+      monthEl.className = "period-value";
+      var mFound = false;
+      for (var mo = 0; mo < 25; mo++) {
+        var tY = searchY, tM = searchM + mo;
+        while (tM > 12) { tM -= 12; tY++; }
+        var mk = calcKanshiForDate(tY, tM, 15);
+        if (mk.mshi === b1) {
+          var tM2 = tM+1, tY2 = tY; if (tM2 > 12) { tM2 -= 12; tY2++; }
+          monthEl.textContent = tY + "/" + tM + "月〜" + tY2 + "/" + tM2 + "月";
+          if (mo === 0) { monthEl.classList.add("alert"); monthEl.textContent += "（現在天中殺中）"; }
+          mFound = true; break;
+        }
+      }
+      if (!mFound) monthEl.textContent = "—";
+
+      var dayEl = document.getElementById('day-tenchu-period');
+      dayEl.className = "period-value";
+      var hits = [];
+      var base = new Date(searchY, searchM-1, window.todayD);
+      for (var di = 0; di < 31; di++) {
+        var dd = new Date(base); dd.setDate(dd.getDate() + di);
+        var dk = calcKanshiForDate(dd.getFullYear(), dd.getMonth()+1, dd.getDate());
+        if (dk.dshi === b1 || dk.dshi === b2) {
+          hits.push((dd.getMonth()+1) + "/" + dd.getDate() + "(" + dk.dkan + dk.dshi + ")");
+          if (hits.length >= 3) break;
+        }
+      }
+      if (hits.length > 0) {
+        dayEl.textContent = hits.join("  ");
+        if (hits[0].indexOf(searchM + "/" + window.todayD) >= 0) dayEl.classList.add("alert");
+      } else { dayEl.textContent = "—"; }
+    }
+
+    function showAllTypes(myKey) {
+      var order = ["戌亥","申酉","午未","辰巳","寅卯","子丑"];
+      var html  = "";
+      order.forEach(function(k) {
+        var d = TENCHU_DATA[k], isMine = (k === myKey);
+        html += "<div class='type-chip" + (isMine?" mine":"") + "'>" +
+          "<div class='type-chip-name'>" + d.name + "</div>" +
+          "<div class='type-chip-dir'>" + d.dir + "</div>" +
+          "<div class='type-chip-desc'>" + d.mission + "</div>" +
+          "</div>";
+      });
+      document.getElementById('all-types-grid').innerHTML = html;
+    }
+
+    function copyResultText() {
+      var r = window.myTenchuResult; if (!r) return;
+      var text =
+        "【㐂びの暦｜天中殺タイプ診断】\n\n" +
+        "私のタイプは「" + r.name + "」（" + r.dir + "）\n" +
+        r.mission + "\n\n" +
+        "本質：" + r.essence + "\n" +
+        "活かし方：" + r.improve + "\n\n" +
+        "自分のタイプを調べる:\nhttps://nanafushi-tenchu-quick.vercel.app/";
+      navigator.clipboard.writeText(text).then(function() {
+        var el = document.getElementById('copy-done');
+        el.textContent = "コピーしました　SNSに貼り付けてどうぞ";
+        setTimeout(function(){ el.textContent = ""; }, 4000);
+      }).catch(function() { document.getElementById('copy-done').textContent = "コピーできませんでした"; });
+    }
+
+    initTodayBanner();
+  </script>
+</body>
+</html>
