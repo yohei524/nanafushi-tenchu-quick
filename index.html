@@ -1,442 +1,481 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>天中殺タイプ診断｜㐂びの暦</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&display=swap');
-    * { margin:0; padding:0; box-sizing:border-box; }
-    :root {
-      --ink:#1a1228; --cream:#f5efe0;
-      --gold:#c9a85c; --gold2:#e8d5a0;
-      --red:#8b1a2a; --red2:#c0392b;
-    }
-    body {
-      font-family:"Noto Serif JP","YuMincho","Hiragino Mincho ProN",serif;
-      background:#090818; min-height:100vh; color:var(--cream);
-      position:relative; overflow-x:hidden;
-    }
-    #starfield { position:fixed; inset:0; z-index:0; pointer-events:none; }
-    #star-canvas { width:100%; height:100%; display:block; }
-    .sky-grad {
-      position:fixed; inset:0; z-index:0; pointer-events:none;
-      background:radial-gradient(ellipse at 50% 0%, #1a0f3a 0%, #090818 65%);
-    }
-    .container { position:relative; z-index:10; max-width:640px; margin:0 auto; padding:16px 16px 40px; }
-
-    /* カード */
-    .card {
-      background:rgba(20,14,40,0.82); border:1px solid rgba(201,168,92,0.22);
-      border-radius:12px; padding:24px; margin-bottom:16px;
-      backdrop-filter:blur(14px); box-shadow:0 0 30px rgba(80,40,160,0.1),0 2px 8px rgba(0,0,0,0.5);
-    }
-
-    /* ヘッダー */
-    .site-header { text-align:center; padding:32px 0 20px; }
-    .yy-wrap { position:relative; width:76px; height:76px; margin:0 auto 18px; }
-    .yy {
-      width:76px; height:76px; border-radius:50%;
-      background:linear-gradient(to right, #f5efe0 50%, #1a1228 50%);
-      border:2px solid rgba(201,168,92,0.5); position:relative;
-      box-shadow:0 0 28px rgba(201,168,92,0.28),0 0 60px rgba(80,40,160,0.18);
-      animation:spin 24s linear infinite;
-    }
-    .yy::before {
-      content:""; position:absolute; top:0; left:50%; transform:translateX(-50%);
-      width:38px; height:38px; border-radius:50%; background:#f5efe0;
-    }
-    .yy::after {
-      content:""; position:absolute; bottom:0; left:50%; transform:translateX(-50%);
-      width:38px; height:38px; border-radius:50%; background:#1a1228;
-    }
-    .yy-dot-w { position:absolute; top:9px; left:50%; transform:translateX(-50%); width:10px; height:10px; border-radius:50%; background:#1a1228; z-index:2; }
-    .yy-dot-b { position:absolute; bottom:9px; left:50%; transform:translateX(-50%); width:10px; height:10px; border-radius:50%; background:#f5efe0; z-index:2; }
-    .ki-over {
-      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-      font-size:24px; color:#8b1a2a; font-weight:700; z-index:3;
-      text-shadow:0 0 8px rgba(200,50,50,0.7);
-      animation:spin-rev 24s linear infinite;
-    }
-    @keyframes spin     { to { transform:rotate(360deg); } }
-    @keyframes spin-rev { to { transform:rotate(-360deg); } }
-
-    .site-tag { font-size:10px; letter-spacing:4px; color:var(--gold); margin-bottom:6px; opacity:0.8; }
-    .site-ttl { font-size:21px; letter-spacing:2px; color:var(--cream); font-weight:300; }
-    .site-ttl span { color:var(--gold); }
-    .site-dsc { font-size:11px; color:rgba(245,239,224,0.45); margin-top:8px; letter-spacing:1px; line-height:1.8; }
-
-    /* 今日バナー */
-    .today-banner {
-      background:linear-gradient(135deg,rgba(26,18,40,0.9),rgba(40,20,60,0.9));
-      border:1px solid rgba(201,168,92,0.3); border-radius:12px; padding:16px 20px; margin-bottom:16px;
-      backdrop-filter:blur(12px);
-    }
-    .t-date { font-size:10px; color:var(--gold); letter-spacing:3px; margin-bottom:6px; }
-    .t-kanshi { font-size:20px; font-weight:500; color:var(--gold2); margin-bottom:5px; letter-spacing:2px; }
-    .t-note { font-size:12px; color:rgba(245,239,224,0.55); line-height:1.6; }
-    .triple-alert {
-      margin-top:10px; padding:10px 14px; border-radius:8px;
-      background:linear-gradient(135deg,rgba(139,26,42,0.82),rgba(80,10,18,0.9));
-      border:1px solid rgba(192,57,43,0.45); font-size:12px; color:#ffc9c9; line-height:1.6;
-      box-shadow:0 0 18px rgba(139,26,42,0.28);
-    }
-
-    /* 入力 */
-    .input-lead { text-align:center; margin-bottom:20px; }
-    .input-lead p { font-size:14px; color:var(--cream); margin-bottom:4px; }
-    .input-lead small { font-size:11px; color:rgba(245,239,224,0.38); letter-spacing:1px; }
-    .date-row { display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap; margin-bottom:20px; }
-    .date-field { display:flex; align-items:center; gap:6px; }
-    .date-input {
-      width:74px; padding:13px 6px; border-radius:8px;
-      border:1px solid rgba(201,168,92,0.35); background:rgba(10,8,24,0.72);
-      font-size:20px; font-family:inherit; text-align:center; color:var(--gold2);
-      -moz-appearance:textfield; transition:border-color .2s,box-shadow .2s;
-    }
-    .date-input.yr { width:90px; }
-    .date-input:focus { outline:none; border-color:var(--gold); box-shadow:0 0 12px rgba(201,168,92,0.22); }
-    .date-input::placeholder { color:rgba(201,168,92,0.28); font-size:13px; }
-    .date-input::-webkit-outer-spin-button,.date-input::-webkit-inner-spin-button { -webkit-appearance:none; }
-    .date-lbl { font-size:14px; color:rgba(245,239,224,0.45); }
-    .btn-calc {
-      display:block; width:100%; padding:15px;
-      background:linear-gradient(135deg,#6a1a28,#3a0e18);
-      border:1px solid rgba(192,57,43,0.45); color:var(--cream); border-radius:10px;
-      font-family:inherit; font-size:15px; font-weight:400; letter-spacing:3px; cursor:pointer;
-      transition:all .25s; box-shadow:0 0 20px rgba(139,26,42,0.22);
-    }
-    .btn-calc:hover { background:linear-gradient(135deg,#8b1a2a,#5a1420); box-shadow:0 0 32px rgba(139,26,42,0.45); }
-    .error { color:#ff8080; font-size:12px; text-align:center; margin-top:8px; min-height:16px; }
-
-    .result-area { display:none; }
-
-    /* タイプヒーロー */
-    .type-hero {
-      position:relative; overflow:hidden; border-radius:12px; padding:36px 24px 26px; text-align:center;
-      background:linear-gradient(155deg,#0d0820,#1e0e38 50%,#0d1830);
-      border:1px solid rgba(201,168,92,0.28);
-      box-shadow:0 0 60px rgba(80,40,180,0.18),inset 0 0 50px rgba(80,40,180,0.04);
-    }
-    .type-hero::before {
-      content:"✶ ✧ ✶ ✧ ✶ ✧ ✶";
-      position:absolute; top:12px; left:0; right:0;
-      font-size:10px; color:rgba(201,168,92,0.35); letter-spacing:10px; text-align:center;
-    }
-    .type-hero::after {
-      content:"✶ ✧ ✶ ✧ ✶ ✧ ✶";
-      position:absolute; bottom:12px; left:0; right:0;
-      font-size:10px; color:rgba(201,168,92,0.35); letter-spacing:10px; text-align:center;
-    }
-    .hero-glow {
-      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-      width:280px; height:280px; border-radius:50%;
-      background:radial-gradient(circle,rgba(100,60,200,0.1) 0%,transparent 70%); pointer-events:none;
-    }
-    .t-micro { font-size:9px; letter-spacing:5px; color:var(--gold); opacity:.65; margin-bottom:12px; position:relative; }
-    .t-name  { font-size:34px; font-weight:500; color:var(--gold2); letter-spacing:3px; margin-bottom:4px; position:relative; text-shadow:0 0 20px rgba(201,168,92,0.35); }
-    .t-dir   { display:inline-block; border:1px solid rgba(201,168,92,0.3); color:rgba(201,168,92,0.75); font-size:11px; padding:3px 16px; border-radius:20px; margin-bottom:18px; letter-spacing:2px; position:relative; }
-    .t-mis   { font-size:17px; color:var(--cream); letter-spacing:1.5px; font-weight:300; position:relative; border-top:1px solid rgba(201,168,92,0.18); padding-top:16px; line-height:1.7; }
-    .share-row { display:flex; gap:8px; justify-content:center; padding:10px 16px 0; }
-    .btn-shr { flex:1; max-width:220px; padding:10px 12px; border-radius:8px; font-family:inherit; font-size:12px; text-align:center; cursor:pointer; transition:all .2s; letter-spacing:1px; }
-    .btn-copy { background:rgba(201,168,92,0.12); border:1px solid rgba(201,168,92,0.35); color:var(--gold2); }
-    .btn-copy:hover { background:rgba(201,168,92,0.22); }
-    .copy-done { font-size:11px; color:#a0d0a0; text-align:center; margin-top:6px; min-height:14px; }
-
-    /* 今日の状態 */
-    .st-box { border-radius:10px; padding:14px 16px; border:1px solid transparent; }
-    .st-box.normal  { background:rgba(40,70,40,.18); border-color:rgba(80,140,80,.3); }
-    .st-box.tenchu  { background:rgba(70,55,18,.2);  border-color:rgba(201,168,92,.28); }
-    .st-box.triple  { background:rgba(80,18,18,.25); border-color:rgba(192,57,43,.4); box-shadow:0 0 20px rgba(139,26,42,.12); }
-    .st-head { font-size:9px; color:var(--gold); letter-spacing:4px; margin-bottom:8px; opacity:.65; }
-    .st-main { font-size:17px; font-weight:500; margin-bottom:8px; letter-spacing:.5px; }
-    .st-main.ok     { color:#a0e0a0; }
-    .st-main.caution{ color:var(--gold2); }
-    .st-main.alert  { color:#ff9090; }
-    .st-note { font-size:12px; color:rgba(245,239,224,.62); line-height:1.8; }
-
-    /* セクション見出し */
-    .sec-h { font-size:9px; letter-spacing:4px; color:var(--gold); opacity:.75; margin-bottom:16px; display:flex; align-items:center; gap:10px; }
-    .sec-h::before,.sec-h::after { content:""; flex:1; height:1px; background:linear-gradient(to right,transparent,rgba(201,168,92,.35),transparent); }
-
-    /* 本質解説 */
-    .det-row { padding:11px 0; border-bottom:1px solid rgba(201,168,92,.1); font-size:13px; line-height:1.8; }
-    .det-row:last-child { border-bottom:none; }
-    .det-lbl { display:inline-block; font-size:9px; letter-spacing:2px; color:var(--gold); opacity:.78; border:1px solid rgba(201,168,92,.28); padding:2px 8px; border-radius:10px; margin-right:8px; margin-bottom:4px; }
-    .det-body { color:rgba(245,239,224,.8); }
-
-    /* 期間 */
-    .per-inner { border-radius:8px; overflow:hidden; }
-    .per-row { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; font-size:13px; border-bottom:1px solid rgba(201,168,92,.07); background:rgba(255,255,255,.015); }
-    .per-row:last-child { border-bottom:none; }
-    .per-type { font-size:11px; color:var(--gold); letter-spacing:1px; flex-shrink:0; margin-right:12px; }
-    .per-val  { font-weight:400; color:rgba(245,239,224,.78); font-size:13px; text-align:right; }
-    .per-val.alert { color:#ff9090; }
-    .per-note { font-size:11px; color:rgba(245,239,224,.3); margin-top:12px; line-height:1.7; text-align:center; letter-spacing:.5px; }
-
-    /* 6タイプ */
-    .types-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-    @media(max-width:380px){ .types-grid{grid-template-columns:1fr;} }
-    .t-chip { border-radius:8px; padding:12px 14px; background:rgba(255,255,255,.025); border:1px solid rgba(201,168,92,.14); }
-    .t-chip.mine { background:linear-gradient(135deg,rgba(100,60,180,.22),rgba(60,20,80,.28)); border-color:rgba(201,168,92,.42); box-shadow:0 0 16px rgba(100,60,180,.12); }
-    .t-chip-name { font-size:14px; font-weight:500; margin-bottom:2px; color:rgba(245,239,224,.65); }
-    .t-chip.mine .t-chip-name { color:var(--gold2); }
-    .t-chip-dir  { font-size:9px; color:rgba(201,168,92,.45); letter-spacing:1px; }
-    .t-chip.mine .t-chip-dir  { color:var(--gold); opacity:.8; }
-    .t-chip-desc { font-size:11px; color:rgba(245,239,224,.42); margin-top:4px; }
-    .t-chip.mine .t-chip-desc { color:rgba(245,239,224,.68); }
-
-    /* CTA */
-    .cta-lead { font-size:13px; color:rgba(245,239,224,.5); line-height:1.9; margin-bottom:20px; text-align:center; }
-    .btn-cta { display:block; padding:14px 20px; border-radius:10px; font-family:inherit; font-size:13px; font-weight:400; letter-spacing:1.5px; text-decoration:none; cursor:pointer; border:none; margin-bottom:10px; transition:all .25s; text-align:center; }
-    .c-pri { background:linear-gradient(135deg,#6a1a28,#3a0e18); border:1px solid rgba(192,57,43,.4); color:var(--cream); box-shadow:0 0 16px rgba(139,26,42,.18); }
-    .c-pri:hover { box-shadow:0 0 28px rgba(139,26,42,.4); }
-    .c-sec { background:rgba(201,168,92,.1); border:1px solid rgba(201,168,92,.28); color:var(--gold2); }
-    .c-sec:hover { background:rgba(201,168,92,.18); }
-    .c-ter { background:rgba(100,60,180,.14); border:1px solid rgba(100,60,180,.28); color:rgba(200,180,255,.8); }
-    .c-ter:hover { background:rgba(100,60,180,.24); }
-    .dscl { font-size:10px; color:rgba(245,239,224,.26); line-height:1.8; text-align:center; margin-top:10px; letter-spacing:.5px; }
-
-    .footer { text-align:center; font-size:10px; color:rgba(245,239,224,.22); padding:24px 0 40px; line-height:2; letter-spacing:2px; }
-    .footer .ki { color:var(--red2); }
-
-    @media(max-width:480px){ .t-name{font-size:27px;} .card{padding:18px 14px;} }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天中殺タイプ診断｜㐂びの暦</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--ink:#1a1228;--cream:#f5efe0;--gold:#c9a85c;--gold2:#e8d5a0;--red:#8b1a2a;--red2:#c0392b;}
+body{font-family:"Noto Serif JP","YuMincho","Hiragino Mincho ProN",serif;background:#090818;min-height:100vh;color:var(--cream);position:relative;overflow-x:hidden;}
+#star-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+.sky-grad{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 50% 0%,#1a0f3a 0%,#090818 65%);}
+.container{position:relative;z-index:10;max-width:640px;margin:0 auto;padding:16px 16px 40px;}
+.card{background:rgba(20,14,40,0.82);border:1px solid rgba(201,168,92,0.22);border-radius:12px;padding:24px;margin-bottom:16px;backdrop-filter:blur(14px);box-shadow:0 0 30px rgba(80,40,160,0.1),0 2px 8px rgba(0,0,0,0.5);}
+.site-header{text-align:center;padding:32px 0 20px;}
+.yy-wrap{position:relative;width:76px;height:76px;margin:0 auto 18px;}
+.yy{width:76px;height:76px;border-radius:50%;background:linear-gradient(to right,#f5efe0 50%,#1a1228 50%);border:2px solid rgba(201,168,92,0.5);position:relative;box-shadow:0 0 28px rgba(201,168,92,0.28),0 0 60px rgba(80,40,160,0.18);animation:spin 24s linear infinite;}
+.yy::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:38px;height:38px;border-radius:50%;background:#f5efe0;}
+.yy::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:38px;height:38px;border-radius:50%;background:#1a1228;}
+.yy-dot-w{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:#1a1228;z-index:2;}
+.yy-dot-b{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:#f5efe0;z-index:2;}
+.ki-over{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:24px;color:#8b1a2a;font-weight:700;z-index:3;text-shadow:0 0 8px rgba(200,50,50,0.7);animation:spin-rev 24s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes spin-rev{to{transform:rotate(-360deg);}}
+.site-tag{font-size:10px;letter-spacing:4px;color:var(--gold);margin-bottom:6px;opacity:0.8;}
+.site-ttl{font-size:21px;letter-spacing:2px;color:var(--cream);font-weight:300;}
+.site-ttl span{color:var(--gold);}
+.site-dsc{font-size:11px;color:rgba(245,239,224,0.45);margin-top:8px;letter-spacing:1px;line-height:1.8;}
+.today-banner{background:linear-gradient(135deg,rgba(26,18,40,0.9),rgba(40,20,60,0.9));border:1px solid rgba(201,168,92,0.3);border-radius:12px;padding:16px 20px;margin-bottom:16px;backdrop-filter:blur(12px);}
+.t-date{font-size:10px;color:var(--gold);letter-spacing:3px;margin-bottom:6px;}
+.t-kanshi{font-size:20px;font-weight:500;color:var(--gold2);margin-bottom:5px;letter-spacing:2px;}
+.t-note{font-size:12px;color:rgba(245,239,224,0.55);line-height:1.6;}
+.triple-alert{margin-top:10px;padding:10px 14px;border-radius:8px;background:linear-gradient(135deg,rgba(139,26,42,0.82),rgba(80,10,18,0.9));border:1px solid rgba(192,57,43,0.45);font-size:12px;color:#ffc9c9;line-height:1.6;box-shadow:0 0 18px rgba(139,26,42,0.28);}
+.input-lead{text-align:center;margin-bottom:20px;}
+.input-lead p{font-size:14px;color:var(--cream);margin-bottom:4px;}
+.input-lead small{font-size:11px;color:rgba(245,239,224,0.38);letter-spacing:1px;}
+.date-row{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
+.date-field{display:flex;align-items:center;gap:6px;}
+.date-input{width:74px;padding:13px 6px;border-radius:8px;border:1px solid rgba(201,168,92,0.35);background:rgba(10,8,24,0.72);font-size:20px;font-family:inherit;text-align:center;color:var(--gold2);transition:border-color .2s,box-shadow .2s;}
+.date-input.yr{width:90px;}
+.date-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 12px rgba(201,168,92,0.22);}
+.date-input::placeholder{color:rgba(201,168,92,0.28);font-size:13px;}
+.date-lbl{font-size:14px;color:rgba(245,239,224,0.45);}
+.btn-calc{display:block;width:100%;padding:15px;background:linear-gradient(135deg,#6a1a28,#3a0e18);border:1px solid rgba(192,57,43,0.45);color:var(--cream);border-radius:10px;font-family:inherit;font-size:15px;font-weight:400;letter-spacing:3px;cursor:pointer;transition:all .25s;box-shadow:0 0 20px rgba(139,26,42,0.22);}
+.btn-calc:hover{background:linear-gradient(135deg,#8b1a2a,#5a1420);box-shadow:0 0 32px rgba(139,26,42,0.45);}
+.error{color:#ff8080;font-size:12px;text-align:center;margin-top:8px;min-height:16px;}
+.result-area{display:none;}
+.type-hero{position:relative;overflow:hidden;border-radius:12px;padding:36px 24px 26px;text-align:center;background:linear-gradient(155deg,#0d0820,#1e0e38 50%,#0d1830);border:1px solid rgba(201,168,92,0.28);box-shadow:0 0 60px rgba(80,40,180,0.18),inset 0 0 50px rgba(80,40,180,0.04);}
+.type-hero::before{content:"✶ ✧ ✶ ✧ ✶ ✧ ✶";position:absolute;top:12px;left:0;right:0;font-size:10px;color:rgba(201,168,92,0.35);letter-spacing:10px;text-align:center;}
+.type-hero::after{content:"✶ ✧ ✶ ✧ ✶ ✧ ✶";position:absolute;bottom:12px;left:0;right:0;font-size:10px;color:rgba(201,168,92,0.35);letter-spacing:10px;text-align:center;}
+.hero-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(100,60,200,0.1) 0%,transparent 70%);pointer-events:none;}
+.t-micro{font-size:9px;letter-spacing:5px;color:var(--gold);opacity:.65;margin-bottom:12px;position:relative;}
+.t-name{font-size:34px;font-weight:500;color:var(--gold2);letter-spacing:3px;margin-bottom:4px;position:relative;text-shadow:0 0 20px rgba(201,168,92,0.35);}
+.t-dir{display:inline-block;border:1px solid rgba(201,168,92,0.3);color:rgba(201,168,92,0.75);font-size:11px;padding:3px 16px;border-radius:20px;margin-bottom:18px;letter-spacing:2px;position:relative;}
+.t-mis{font-size:17px;color:var(--cream);letter-spacing:1.5px;font-weight:300;position:relative;border-top:1px solid rgba(201,168,92,0.18);padding-top:16px;line-height:1.7;}
+.share-row{display:flex;gap:8px;justify-content:center;padding:10px 16px 0;}
+.btn-shr{flex:1;max-width:220px;padding:10px 12px;border-radius:8px;font-family:inherit;font-size:12px;text-align:center;cursor:pointer;transition:all .2s;letter-spacing:1px;background:rgba(201,168,92,0.12);border:1px solid rgba(201,168,92,0.35);color:var(--gold2);}
+.btn-shr:hover{background:rgba(201,168,92,0.22);}
+.copy-done{font-size:11px;color:#a0d0a0;text-align:center;margin-top:6px;min-height:14px;}
+.st-box{border-radius:10px;padding:14px 16px;border:1px solid transparent;}
+.st-box.normal{background:rgba(40,70,40,.18);border-color:rgba(80,140,80,.3);}
+.st-box.tenchu{background:rgba(70,55,18,.2);border-color:rgba(201,168,92,.28);}
+.st-box.triple{background:rgba(80,18,18,.25);border-color:rgba(192,57,43,.4);box-shadow:0 0 20px rgba(139,26,42,.12);}
+.st-head{font-size:9px;color:var(--gold);letter-spacing:4px;margin-bottom:8px;opacity:.65;}
+.st-main{font-size:17px;font-weight:500;margin-bottom:8px;letter-spacing:.5px;}
+.st-main.ok{color:#a0e0a0;}
+.st-main.caution{color:var(--gold2);}
+.st-main.alert{color:#ff9090;}
+.st-note{font-size:12px;color:rgba(245,239,224,.62);line-height:1.8;}
+.sec-h{font-size:9px;letter-spacing:4px;color:var(--gold);opacity:.75;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.sec-h::before,.sec-h::after{content:"";flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(201,168,92,.35),transparent);}
+.det-row{padding:11px 0;border-bottom:1px solid rgba(201,168,92,.1);font-size:13px;line-height:1.8;}
+.det-row:last-child{border-bottom:none;}
+.det-lbl{display:inline-block;font-size:9px;letter-spacing:2px;color:var(--gold);opacity:.78;border:1px solid rgba(201,168,92,.28);padding:2px 8px;border-radius:10px;margin-right:8px;margin-bottom:4px;}
+.det-body{color:rgba(245,239,224,.8);}
+.per-inner{border-radius:8px;overflow:hidden;}
+.per-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-size:13px;border-bottom:1px solid rgba(201,168,92,.07);background:rgba(255,255,255,.015);}
+.per-row:last-child{border-bottom:none;}
+.per-type{font-size:11px;color:var(--gold);letter-spacing:1px;flex-shrink:0;margin-right:12px;}
+.per-val{font-weight:400;color:rgba(245,239,224,.78);font-size:13px;text-align:right;}
+.per-val.alert{color:#ff9090;}
+.per-note{font-size:11px;color:rgba(245,239,224,.3);margin-top:12px;line-height:1.7;text-align:center;letter-spacing:.5px;}
+.types-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.t-chip{border-radius:8px;padding:12px 14px;background:rgba(255,255,255,.025);border:1px solid rgba(201,168,92,.14);}
+.t-chip.mine{background:linear-gradient(135deg,rgba(100,60,180,.22),rgba(60,20,80,.28));border-color:rgba(201,168,92,.42);box-shadow:0 0 16px rgba(100,60,180,.12);}
+.t-chip-name{font-size:14px;font-weight:500;margin-bottom:2px;color:rgba(245,239,224,.65);}
+.t-chip.mine .t-chip-name{color:var(--gold2);}
+.t-chip-dir{font-size:9px;color:rgba(201,168,92,.45);letter-spacing:1px;}
+.t-chip.mine .t-chip-dir{color:var(--gold);opacity:.8;}
+.t-chip-desc{font-size:11px;color:rgba(245,239,224,.42);margin-top:4px;}
+.t-chip.mine .t-chip-desc{color:rgba(245,239,224,.68);}
+.cta-lead{font-size:13px;color:rgba(245,239,224,.5);line-height:1.9;margin-bottom:20px;text-align:center;}
+.btn-cta{display:block;padding:14px 20px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:400;letter-spacing:1.5px;text-decoration:none;cursor:pointer;border:none;margin-bottom:10px;transition:all .25s;text-align:center;}
+.c-pri{background:linear-gradient(135deg,#6a1a28,#3a0e18);border:1px solid rgba(192,57,43,.4);color:var(--cream);box-shadow:0 0 16px rgba(139,26,42,.18);}
+.c-sec{background:rgba(201,168,92,.1);border:1px solid rgba(201,168,92,.28);color:var(--gold2);}
+.c-ter{background:rgba(100,60,180,.14);border:1px solid rgba(100,60,180,.28);color:rgba(200,180,255,.8);}
+.dscl{font-size:10px;color:rgba(245,239,224,.26);line-height:1.8;text-align:center;margin-top:10px;letter-spacing:.5px;}
+.footer{text-align:center;font-size:10px;color:rgba(245,239,224,.22);padding:24px 0 40px;line-height:2;letter-spacing:2px;}
+@media(max-width:480px){.t-name{font-size:27px;}.card{padding:18px 14px;}.types-grid{grid-template-columns:1fr;}}
+</style>
 </head>
 <body>
-  <div class="sky-grad"></div>
-  <div id="starfield"><canvas id="star-canvas"></canvas></div>
-  <div class="container">
+<canvas id="star-canvas"></canvas>
+<div class="sky-grad"></div>
+<div class="container">
 
-    <div class="site-header">
-      <div class="yy-wrap">
-        <div class="yy">
-          <div class="yy-dot-w"></div>
-          <div class="yy-dot-b"></div>
-        </div>
-        <div class="ki-over">&#x3402;</div>
-      </div>
-      <div class="site-tag">ナナフシ &#x3402; の</div>
-      <div class="site-ttl">&#x3402; びの暦<span>｜</span>天中殺タイプ診断</div>
-      <p class="site-dsc">生まれた日に刻まれた<br>あなた固有のリズムを知る</p>
+<div class="site-header">
+  <div class="yy-wrap">
+    <div class="yy"><div class="yy-dot-w"></div><div class="yy-dot-b"></div></div>
+    <div class="ki-over">&#x3402;</div>
+  </div>
+  <div class="site-tag">ナナフシ &#x3402; の</div>
+  <div class="site-ttl">&#x3402; びの暦<span>｜</span>天中殺タイプ診断</div>
+  <p class="site-dsc">生まれた日に刻まれた<br>あなた固有のリズムを知る</p>
+</div>
+
+<div class="today-banner">
+  <div class="t-date" id="t-date"></div>
+  <div class="t-kanshi" id="t-kanshi"></div>
+  <div class="t-note" id="t-note"></div>
+  <div class="triple-alert" id="t-alert" style="display:none;"></div>
+</div>
+
+<div class="card">
+  <div class="input-lead">
+    <p>生年月日を入れるだけ</p>
+    <small>あなたの天中殺タイプが分かります</small>
+  </div>
+  <div class="date-row">
+    <div class="date-field">
+      <input class="date-input yr" id="inp-y" type="number" min="1900" max="2100" placeholder="西暦">
+      <span class="date-lbl">年</span>
     </div>
-
-    <div class="today-banner">
-      <div class="t-date" id="t-date"></div>
-      <div class="t-kanshi" id="t-kanshi"></div>
-      <div class="t-note" id="t-note"></div>
-      <div class="triple-alert" id="t-alert" style="display:none;"></div>
+    <div class="date-field">
+      <input class="date-input" id="inp-m" type="number" min="1" max="12" placeholder="月">
+      <span class="date-lbl">月</span>
     </div>
-
-    <div class="card">
-      <div class="input-lead">
-        <p>生年月日を入れるだけ</p>
-        <small>あなたの天中殺タイプが分かります</small>
-      </div>
-      <div class="date-row">
-        <div class="date-field">
-          <input class="date-input yr" id="year" type="tel" maxlength="4" placeholder="西暦">
-          <span class="date-lbl">年</span>
-        </div>
-        <div class="date-field">
-          <input class="date-input" id="month" type="tel" maxlength="2" placeholder="月">
-          <span class="date-lbl">月</span>
-        </div>
-        <div class="date-field">
-          <input class="date-input" id="day" type="tel" maxlength="2" placeholder="日">
-          <span class="date-lbl">日</span>
-        </div>
-      </div>
-      <button class="btn-calc" onclick="calculate()">タイプを調べる</button>
-      <div class="error" id="error"></div>
+    <div class="date-field">
+      <input class="date-input" id="inp-d" type="number" min="1" max="31" placeholder="日">
+      <span class="date-lbl">日</span>
     </div>
+  </div>
+  <button class="btn-calc" id="btn-calc">タイプを調べる</button>
+  <div class="error" id="err"></div>
+</div>
 
-    <div class="result-area" id="result">
-
-      <div class="card" style="padding:0;overflow:hidden;">
-        <div class="type-hero">
-          <div class="hero-glow"></div>
-          <div class="t-micro">YOUR TENCHU TYPE</div>
-          <div class="t-name" id="res-name">—</div>
-          <div class="t-dir"  id="res-dir">—</div>
-          <div class="t-mis"  id="res-mis">—</div>
-        </div>
-        <div style="padding:4px 16px 16px;">
-          <div class="share-row">
-            <button class="btn-shr btn-copy" onclick="copyResult()">結果をコピーしてシェア</button>
-          </div>
-          <div class="copy-done" id="copy-done"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="sec-h">TODAY</div>
-        <div class="st-box" id="st-box">
-          <div class="st-head">今日のあなたの状態</div>
-          <div class="st-main" id="st-main">—</div>
-          <div class="st-note" id="st-note">—</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="sec-h">このタイプの本質</div>
-        <div id="detail-content"></div>
-      </div>
-
-      <div class="card">
-        <div class="sec-h">直近の天中殺期間</div>
-        <div class="per-inner">
-          <div class="per-row"><span class="per-type">年天中殺</span><span class="per-val" id="y-period">—</span></div>
-          <div class="per-row"><span class="per-type">月天中殺</span><span class="per-val" id="m-period">—</span></div>
-          <div class="per-row"><span class="per-type">日天中殺（直近）</span><span class="per-val" id="d-period">—</span></div>
-        </div>
-        <p class="per-note">天中殺は「整える時期」です<br>凶ではなく、次のステージへ向けてエネルギーをチャージする期間</p>
-      </div>
-
-      <div class="card">
-        <div class="sec-h">6つの天中殺タイプ</div>
-        <div class="types-grid" id="types-grid"></div>
-      </div>
-
-      <div class="card">
-        <div class="sec-h">もっと詳しく知りたい方へ</div>
-        <p class="cta-lead">天中殺以外にも「どんな星を持って生まれたか」<br>「今の運気はどうか」を命式全体で確認できます</p>
-        <a href="https://nanafushi-meishikicker.vercel.app/" target="_blank" class="btn-cta c-pri">ナナフシ命式チェッカー（無料・全機能版）→</a>
-        <a href="https://kichi-dashboard.vercel.app/" target="_blank" class="btn-cta c-sec">&#x3402; びの暦 ダッシュボード →</a>
-        <a href="https://www.instagram.com/hossoiossan/" target="_blank" class="btn-cta c-ter">@hossoiossan で算命学の話を発信中 →</a>
-        <p class="dscl">天中殺は個人の命式全体の中で読むものです<br>詳しい鑑定はInstagramのDMからお問い合わせください</p>
-      </div>
+<div class="result-area" id="result">
+  <div class="card" style="padding:0;overflow:hidden;">
+    <div class="type-hero">
+      <div class="hero-glow"></div>
+      <div class="t-micro">YOUR TENCHU TYPE</div>
+      <div class="t-name" id="res-name">—</div>
+      <div class="t-dir" id="res-dir">—</div>
+      <div class="t-mis" id="res-mis">—</div>
     </div>
-
-    <div class="footer">
-      ナナフシ <span class="ki">&#x3402;</span> の 　&#x3402; びの暦<br>
-      算命学をベースにした命式・天中殺の読み方<br>@hossoiossan
+    <div style="padding:4px 16px 16px;">
+      <div class="share-row">
+        <button class="btn-shr" id="btn-copy">結果をコピーしてシェア</button>
+      </div>
+      <div class="copy-done" id="copy-done"></div>
     </div>
   </div>
 
-  <script>
-  // ─── 星空アニメーション ───
-  (function(){
-    var cv=document.getElementById('star-canvas'),ctx=cv.getContext('2d');
-    var W,H,stars=[];
-    function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
-    window.addEventListener('resize',resize); resize();
-    for(var i=0;i<240;i++) stars.push({x:Math.random(),y:Math.random(),r:Math.random()*1.4+0.2,a:Math.random()*0.6+0.2,sp:Math.random()*0.003+0.001,ph:Math.random()*Math.PI*2});
-    var t=0;
-    function draw(){
-      ctx.clearRect(0,0,W,H); t+=0.012;
-      stars.forEach(function(s){
-        var a=s.a*(0.5+0.5*Math.sin(t*s.sp*60+s.ph));
-        ctx.beginPath(); ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);
-        ctx.fillStyle='rgba(255,255,220,'+a+')'; ctx.fill();
-      });
-      requestAnimationFrame(draw);
+  <div class="card">
+    <div class="sec-h">TODAY</div>
+    <div class="st-box" id="st-box">
+      <div class="st-head">今日のあなたの状態</div>
+      <div class="st-main" id="st-main">—</div>
+      <div class="st-note" id="st-note">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-h">このタイプの本質</div>
+    <div id="detail-content"></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-h">直近の天中殺期間</div>
+    <div class="per-inner">
+      <div class="per-row"><span class="per-type">年天中殺</span><span class="per-val" id="y-period">—</span></div>
+      <div class="per-row"><span class="per-type">月天中殺</span><span class="per-val" id="m-period">—</span></div>
+      <div class="per-row"><span class="per-type">日天中殺（直近）</span><span class="per-val" id="d-period">—</span></div>
+    </div>
+    <p class="per-note">天中殺は「整える時期」です<br>凶ではなく、次のステージへエネルギーをチャージする期間</p>
+  </div>
+
+  <div class="card">
+    <div class="sec-h">6つの天中殺タイプ</div>
+    <div class="types-grid" id="types-grid"></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-h">もっと詳しく知りたい方へ</div>
+    <p class="cta-lead">天中殺以外にも「どんな星を持って生まれたか」<br>「今の運気はどうか」を命式全体で確認できます</p>
+    <a href="https://nanafushi-meishikicker.vercel.app/" target="_blank" class="btn-cta c-pri">ナナフシ命式チェッカー（無料・全機能版）→</a>
+    <a href="https://kichi-dashboard.vercel.app/" target="_blank" class="btn-cta c-sec">&#x3402; びの暦 ダッシュボード →</a>
+    <a href="https://www.instagram.com/hossoiossan/" target="_blank" class="btn-cta c-ter">@hossoiossan で算命学の話を発信中 →</a>
+    <p class="dscl">天中殺は命式全体の中で読むものです<br>詳しい鑑定はInstagramのDMからお問い合わせください</p>
+  </div>
+</div>
+
+<div class="footer">
+  &#x3402; びの暦<br>
+  算命学をベースにした命式・天中殺の読み方<br>
+  @hossoiossan
+</div>
+
+</div>
+<script>
+// 星空
+(function(){
+  var cv=document.getElementById('star-canvas');
+  var ctx=cv.getContext('2d');
+  var W,H,stars=[];
+  function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
+  window.addEventListener('resize',resize);
+  resize();
+  for(var i=0;i<220;i++){
+    stars.push({x:Math.random(),y:Math.random(),r:Math.random()*1.4+0.2,a:Math.random()*0.6+0.2,sp:Math.random()*0.003+0.001,ph:Math.random()*Math.PI*2});
+  }
+  var t=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    t+=0.012;
+    for(var i=0;i<stars.length;i++){
+      var s=stars[i];
+      var a=s.a*(0.5+0.5*Math.sin(t*s.sp*60+s.ph));
+      ctx.beginPath();
+      ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,220,'+a+')';
+      ctx.fill();
     }
-    draw();
-  })();
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
 
-  // ─── 暦計算（nanafushi-meishikicker流用） ───
-  var ST=["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
-  var BR=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
-  function getJD(y,m,d){if(m<=2){y--;m+=12;}var A=Math.floor(y/100),B=2-A+Math.floor(A/4);return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5;}
-  function getSL(jd){var D=jd-2451545,g=(357.529+0.98560028*D)%360,q=(280.459+0.98564736*D)%360,L=q+1.915*Math.sin(g*Math.PI/180)+0.020*Math.sin(2*g*Math.PI/180);return(L%360+360)%360;}
-  function kanshi(y,m,d){
-    var jd=getJD(y,m,d),dIdx=((54+Math.round(jd-2451545))%60+60)%60,sl=getSL(jd);
-    var sT=[{d:315,b:2},{d:345,b:3},{d:15,b:4},{d:45,b:5},{d:75,b:6},{d:105,b:7},{d:135,b:8},{d:165,b:9},{d:195,b:10},{d:225,b:11},{d:255,b:0},{d:285,b:1}];
-    var mB=-1;
-    for(var i=0;i<12;i++){var c=sT[i],n=sT[(i+1)%12];if((c.d<n.d)?(sl>=c.d&&sl<n.d):(sl>=c.d||sl<n.d)){mB=c.b;break;}}
-    var sY=y; if(m===1)sY=y-1; else if(m===2&&sl>=270&&sl<315)sY=y-1;
-    var yI=((((sY-1984)%60)+60)%60),mSI=(((yI%10)%5)*2+2+(mB-2+12)%12)%10;
-    return{ykan:ST[yI%10],yshi:BR[yI%12],mkan:ST[mSI],mshi:BR[mB],dkan:ST[dIdx%10],dshi:BR[dIdx%12],dIdx:dIdx};
+// 暦計算
+var ST=["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+var BR=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+
+function getJD(y,m,d){
+  if(m<=2){y--;m+=12;}
+  var A=Math.floor(y/100),B=2-A+Math.floor(A/4);
+  return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5;
+}
+function getSL(jd){
+  var D=jd-2451545;
+  var g=(357.529+0.98560028*D)%360;
+  var q=(280.459+0.98564736*D)%360;
+  var L=q+1.915*Math.sin(g*Math.PI/180)+0.020*Math.sin(2*g*Math.PI/180);
+  return(L%360+360)%360;
+}
+function kanshi(y,m,d){
+  var jd=getJD(y,m,d);
+  var dIdx=((54+Math.round(jd-2451545))%60+60)%60;
+  var sl=getSL(jd);
+  var sT=[{d:315,b:2},{d:345,b:3},{d:15,b:4},{d:45,b:5},{d:75,b:6},{d:105,b:7},{d:135,b:8},{d:165,b:9},{d:195,b:10},{d:225,b:11},{d:255,b:0},{d:285,b:1}];
+  var mB=0;
+  for(var i=0;i<12;i++){
+    var c=sT[i],n=sT[(i+1)%12];
+    if(c.d<n.d){if(sl>=c.d&&sl<n.d){mB=c.b;break;}}
+    else{if(sl>=c.d||sl<n.d){mB=c.b;break;}}
+  }
+  var sY=y;
+  if(m===1)sY=y-1;
+  else if(m===2&&sl>=270&&sl<315)sY=y-1;
+  var yI=((((sY-1984)%60)+60)%60);
+  var mSI=(((yI%10)%5)*2+2+(mB-2+12)%12)%10;
+  return{ykan:ST[yI%10],yshi:BR[yI%12],mkan:ST[mSI],mshi:BR[mB],dkan:ST[dIdx%10],dshi:BR[dIdx%12],dIdx:dIdx};
+}
+function getKey(dIdx){
+  var n=dIdx+1;
+  if(n<=10)return"戌亥";
+  if(n<=20)return"申酉";
+  if(n<=30)return"午未";
+  if(n<=40)return"辰巳";
+  if(n<=50)return"寅卯";
+  return"子丑";
+}
+
+// 天中殺データ
+var TD={
+  "戌亥":{name:"戌亥天中殺",dir:"北西",mis:"精神性を高める使命",br:["戌","亥"],ess:"精神性を高める使命",fam:"家系の精神性を継承する宿命。精神的な積み上げが次の世代に伝わる",imp:"形のないもの・精神世界・哲学・宗教・芸術に向かう時に才能が開く"},
+  "申酉":{name:"申酉天中殺",dir:"西方",mis:"伝統と革新を繋ぐ使命",br:["申","酉"],ess:"伝統と革新を繋ぐ使命",fam:"伝統と新しい時代をつなぐ立場。家系の中で橋の役割を担う",imp:"古いものを学び、それを新しい形に変えて伝える時に力を発揮する"},
+  "午未":{name:"午未天中殺",dir:"南方",mis:"流れを断ち切る使命",br:["午","未"],ess:"流れを断ち切る使命",fam:"古い流れを断ち切って新しく始める宿命。家系の転換点になる人",imp:"過去のしがらみを断ち切り、自分だけの独自路線を進む時に輝く"},
+  "辰巳":{name:"辰巳天中殺",dir:"南東",mis:"人と違う道を行く使命",br:["辰","巳"],ess:"人と違う道を行く使命",fam:"既存の枠に収まらない宿命。変わってると言われるのは才能の証",imp:"独自の哲学・専門性を深めるほど、他の追随を許さない存在になれる"},
+  "寅卯":{name:"寅卯天中殺",dir:"東方",mis:"引き継ぎ・継承の使命",br:["寅","卯"],ess:"引き継ぎ・継承の使命",fam:"父親・先代との縁が深い。二代運・三代運として既存のものを発展させる",imp:"狭く深い人間関係・丁寧さ・几帳面さ・精神性を高める学びの中で活きる"},
+  "子丑":{name:"子丑天中殺",dir:"北方",mis:"何かを始める使命",br:["子","丑"],ess:"何かを始める使命",fam:"家系の新しい流れを作る立場。ゼロから何かを立ち上げる宿命を持つ",imp:"前例のないこと・ゼロから立ち上げる仕事の中で、真骨頂が現れる"}
+};
+
+// 今日バナー
+var TODAY_K, TODAY_Y, TODAY_M, TODAY_D;
+(function(){
+  var now=new Date();
+  var y=now.getFullYear(),m=now.getMonth()+1,d=now.getDate();
+  TODAY_Y=y; TODAY_M=m; TODAY_D=d;
+  TODAY_K=kanshi(y,m,d);
+  var wd=["日","月","火","水","木","金","土"][now.getDay()];
+  document.getElementById('t-date').textContent=y+"年"+m+"月"+d+"日（"+wd+"）";
+  document.getElementById('t-kanshi').textContent=TODAY_K.ykan+TODAY_K.yshi+"年　"+TODAY_K.mkan+TODAY_K.mshi+"月　"+TODAY_K.dkan+TODAY_K.dshi+"日";
+  var go=["午","未"];
+  var hits=(go.indexOf(TODAY_K.yshi)>=0?1:0)+(go.indexOf(TODAY_K.mshi)>=0?1:0)+(go.indexOf(TODAY_K.dshi)>=0?1:0);
+  var al=document.getElementById('t-alert');
+  if(hits>=3){
+    document.getElementById('t-note').textContent="今日は年・月・日すべてに午未が重なっています";
+    al.style.display="block";
+    al.textContent="午未天中殺の方へ：今日はトリプル天冲殺です。大きな決断・新規事業・契約は避け、内側を整える日にしてください";
+  }else if(hits===2){
+    document.getElementById('t-note').textContent="午未天中殺の方にとって今日はダブル天冲殺です";
+    al.style.display="block";
+    al.style.background="rgba(90,60,10,0.8)";
+    al.textContent="午未天中殺の方：ダブル天冲殺です。重要な決断は慎重に";
+  }else{
+    document.getElementById('t-note').textContent="生年月日を入れると今日があなたにとって何の日か分かります";
+  }
+})();
+
+// ボタンのイベント
+document.getElementById('btn-calc').addEventListener('click', function(){
+  var eEl=document.getElementById('err');
+  var rEl=document.getElementById('result');
+  eEl.textContent="";
+  rEl.style.display="none";
+
+  var yv=document.getElementById('inp-y').value;
+  var mv=document.getElementById('inp-m').value;
+  var dv=document.getElementById('inp-d').value;
+  var y=parseInt(yv,10),m=parseInt(mv,10),d=parseInt(dv,10);
+
+  if(!yv||!mv||!dv){eEl.textContent="年月日を入れてください";return;}
+  if(isNaN(y)||isNaN(m)||isNaN(d)){eEl.textContent="数字で入れてください";return;}
+  if(y<1900||y>2100){eEl.textContent="年は1900〜2100で入れてください";return;}
+  if(m<1||m>12){eEl.textContent="月は1〜12で入れてください";return;}
+  if(d<1||d>31){eEl.textContent="日は1〜31で入れてください";return;}
+
+  var k=kanshi(y,m,d);
+  var key=getKey(k.dIdx);
+  var t=TD[key];
+
+  document.getElementById('res-name').textContent=t.name;
+  document.getElementById('res-dir').textContent=t.dir+"天中殺";
+  document.getElementById('res-mis').textContent=t.mis;
+
+  // 今日の状態
+  var box=document.getElementById('st-box');
+  var mEl=document.getElementById('st-main');
+  var nEl=document.getElementById('st-note');
+  var yH=t.br.indexOf(TODAY_K.yshi)>=0;
+  var mH=t.br.indexOf(TODAY_K.mshi)>=0;
+  var dH=t.br.indexOf(TODAY_K.dshi)>=0;
+  var hit=(yH?1:0)+(mH?1:0)+(dH?1:0);
+  box.className="st-box";
+  if(hit>=3){
+    box.classList.add("triple");mEl.className="st-main alert";
+    mEl.textContent="今日はトリプル天冲殺";
+    nEl.textContent="年・月・日すべてにあなたの天中殺の支が重なっています。大きな決断・新規事業・契約はこの期間を避け、内省と準備に充てる日にしてください。";
+  }else if(hit===2){
+    box.classList.add("triple");mEl.className="st-main alert";
+    mEl.textContent="ダブル天冲殺";
+    nEl.textContent="重要な決断は期間明けに。今は準備と内省に使うのが吉です。";
+  }else if(dH){
+    box.classList.add("tenchu");mEl.className="st-main caution";
+    mEl.textContent="今日は日天中殺";
+    nEl.textContent="今日の日支はあなたの天中殺の支です。重要な決断は明日以降に。内側を整えたり静かに考える日に向いています。";
+  }else if(mH){
+    box.classList.add("tenchu");mEl.className="st-main caution";
+    mEl.textContent="今月は月天中殺";
+    nEl.textContent="今月はあなたの天中殺月です。大きな判断は来月以降に。コツコツ準備する時間として使いましょう。";
+  }else if(yH){
+    box.classList.add("tenchu");mEl.className="st-main caution";
+    mEl.textContent="今年は年天中殺";
+    nEl.textContent="今年はあなたの天中殺年です。拡大より整理・内側を深める年。種まきしておくと天中殺明けに花開きます。";
+  }else{
+    box.classList.add("normal");mEl.className="st-main ok";
+    mEl.textContent="今日は通常運";
+    nEl.textContent="今日はあなたの天中殺と重なる干支はありません。動くなら今日がチャンス。気になっていたことを一歩前に進める日にしましょう。";
   }
 
-  // ─── 天中殺データ ───
-  var TD={
-    "戌亥":{name:"戌亥天中殺",dir:"北西",mis:"精神性を高める使命",br:["戌","亥"],ess:"精神性を高める使命",fam:"家系の精神性を継承する宿命。精神的な積み上げが次の世代に伝わる",imp:"形のないもの・精神世界・哲学・宗教・芸術に向かう時に才能が開く"},
-    "申酉":{name:"申酉天中殺",dir:"西方", mis:"伝統と革新を繋ぐ使命",br:["申","酉"],ess:"伝統と革新を繋ぐ使命",fam:"伝統と新しい時代をつなぐ立場。家系の中で「橋」の役割を担う",imp:"古いものを学び、それを新しい形に変えて伝える時に力を発揮する"},
-    "午未":{name:"午未天中殺",dir:"南方", mis:"流れを断ち切る使命",  br:["午","未"],ess:"流れを断ち切る使命",fam:"古い流れを断ち切って新しく始める宿命。家系の転換点になる人",imp:"過去のしがらみを断ち切り、自分だけの独自路線を進む時に輝く"},
-    "辰巳":{name:"辰巳天中殺",dir:"南東", mis:"人と違う道を行く使命",br:["辰","巳"],ess:"人と違う道を行く使命",fam:"既存の枠に収まらない宿命。変わってると言われるのは才能の証",imp:"独自の哲学・専門性を深めるほど、他の追随を許さない存在になれる"},
-    "寅卯":{name:"寅卯天中殺",dir:"東方", mis:"引き継ぎ・継承の使命",br:["寅","卯"],ess:"引き継ぎ・継承の使命",fam:"父親・先代との縁が深い。二代運・三代運として既存のものを発展させる",imp:"狭く深い人間関係・丁寧さ・几帳面さ・精神性を高める学びの中で活きる"},
-    "子丑":{name:"子丑天中殺",dir:"北方", mis:"何かを始める使命",    br:["子","丑"],ess:"何かを始める使命",fam:"家系の新しい流れを作る立場。ゼロから何かを立ち上げる宿命を持つ",imp:"前例のないこと・ゼロから立ち上げる仕事の中で、真骨頂が現れる"}
-  };
-  function getKey(dIdx){var n=dIdx+1;if(n<=10)return"戌亥";if(n<=20)return"申酉";if(n<=30)return"午未";if(n<=40)return"辰巳";if(n<=50)return"寅卯";return"子丑";}
+  // 本質解説
+  document.getElementById('detail-content').innerHTML=
+    "<div class='det-row'><span class='det-lbl'>本質</span><span class='det-body'>"+t.ess+"</span></div>"+
+    "<div class='det-row'><span class='det-lbl'>家系の縁</span><span class='det-body'>"+t.fam+"</span></div>"+
+    "<div class='det-row'><span class='det-lbl'>活かし方</span><span class='det-body'>"+t.imp+"</span></div>";
 
-  // ─── 今日バナー ───
-  function initBanner(){
-    var now=new Date(),y=now.getFullYear(),m=now.getMonth()+1,d=now.getDate();
-    var td=kanshi(y,m,d),wd=["日","月","火","水","木","金","土"][now.getDay()];
-    document.getElementById('t-date').textContent=y+"年"+m+"月"+d+"日（"+wd+"）";
-    document.getElementById('t-kanshi').textContent=td.ykan+td.yshi+"年　"+td.mkan+td.mshi+"月　"+td.dkan+td.dshi+"日";
-    var go=["午","未"],yH=go.indexOf(td.yshi)>=0,mH=go.indexOf(td.mshi)>=0,dH=go.indexOf(td.dshi)>=0,hit=(yH?1:0)+(mH?1:0)+(dH?1:0);
-    var al=document.getElementById('t-alert');
-    if(hit>=3){document.getElementById('t-note').textContent="今日は年・月・日すべてに午未が重なっています";al.style.display="block";al.textContent="午未天中殺の方へ：今日はトリプル天冲殺です。大きな決断・新規事業・契約は避け、内側を整える日にしてください";}
-    else if(hit===2){document.getElementById('t-note').textContent="午未天中殺の方にとって今日はダブル天冲殺です";al.style.display="block";al.style.background="rgba(90,60,10,0.8)";al.textContent="午未天中殺の方：ダブル天冲殺です。重要な決断は慎重に";}
-    else{document.getElementById('t-note').textContent="生年月日を入れると今日があなたにとって何の日か分かります";}
-    window.TK=td; window.TY=y; window.TM=m; window.TD=d;
+  // 天中殺期間
+  var b1=t.br[0],b2=t.br[1];
+  var yEl=document.getElementById('y-period');
+  yEl.className="per-val";
+  var yS=null,yE=null;
+  for(var yi=TODAY_Y;yi<TODAY_Y+13;yi++){
+    var ky=kanshi(yi,3,15);
+    if(ky.yshi===b1){yS=yi;yE=yi+1;break;}
+    if(ky.yshi===b2){yS=yi-1;yE=yi;break;}
   }
+  if(yS){
+    yEl.textContent=yS+"年〜"+yE+"年";
+    if(TODAY_Y>=yS&&TODAY_Y<=yE){yEl.classList.add("alert");yEl.textContent+="（現在天中殺中）";}
+  }else{yEl.textContent="—";}
 
-  // ─── 計算 ───
-  function calculate(){
-    var eEl=document.getElementById('error'),rEl=document.getElementById('result');
-    eEl.textContent=""; rEl.style.display="none";
-    var y=parseInt(document.getElementById('year').value),m=parseInt(document.getElementById('month').value),d=parseInt(document.getElementById('day').value);
-    if(!y||!m||!d||isNaN(y)||isNaN(m)||isNaN(d)){eEl.textContent="年月日を入れてください";return;}
-    if(y<1900||y>2100){eEl.textContent="年は1900〜2100で";return;} if(m<1||m>12){eEl.textContent="月は1〜12で";return;} if(d<1||d>31){eEl.textContent="日は1〜31で";return;}
-    var k=kanshi(y,m,d),key=getKey(k.dIdx),t=TD[key];
-    document.getElementById('res-name').textContent=t.name;
-    document.getElementById('res-dir').textContent=t.dir+"天中殺";
-    document.getElementById('res-mis').textContent=t.mis;
-    showStatus(t); showDetail(t); showPeriods(t); showTypes(key);
-    window.MR={name:t.name,dir:t.dir,mis:t.mis,ess:t.ess,imp:t.imp};
-    rEl.style.display="block"; rEl.scrollIntoView({behavior:"smooth",block:"start"});
+  var mEl2=document.getElementById('m-period');
+  mEl2.className="per-val";
+  var mFound=false;
+  for(var mo=0;mo<25;mo++){
+    var tY2=TODAY_Y,tM2=TODAY_M+mo;
+    while(tM2>12){tM2-=12;tY2++;}
+    var mk=kanshi(tY2,tM2,15);
+    if(mk.mshi===b1){
+      var tM3=tM2+1,tY3=tY2;
+      if(tM3>12){tM3-=12;tY3++;}
+      mEl2.textContent=tY2+"/"+tM2+"月〜"+tY3+"/"+tM3+"月";
+      if(mo===0){mEl2.classList.add("alert");mEl2.textContent+="（現在天中殺中）";}
+      mFound=true;break;
+    }
   }
+  if(!mFound)mEl2.textContent="—";
 
-  function showStatus(t){
-    var box=document.getElementById('st-box'),mEl=document.getElementById('st-main'),nEl=document.getElementById('st-note'),td=window.TK;
-    var yH=t.br.indexOf(td.yshi)>=0,mH=t.br.indexOf(td.mshi)>=0,dH=t.br.indexOf(td.dshi)>=0,hit=(yH?1:0)+(mH?1:0)+(dH?1:0);
-    box.className="st-box";
-    if(hit>=3){box.classList.add("triple");mEl.className="st-main alert";mEl.textContent="⚠ 今日はトリプル天冲殺";nEl.textContent="年・月・日すべてにあなたの天中殺の支が重なっています。大きな決断・新規事業・契約はこの期間を避け、内省と準備に充てる日にしてください。整えた分だけ、次のステージが上がります。";}
-    else if(hit===2){box.classList.add("triple");mEl.className="st-main alert";mEl.textContent="⚡ ダブル天冲殺";nEl.textContent="年・月どちらもあなたの天中殺の支です。重要な決断は期間明けに。今は準備と内省に使うのが◎";}
-    else if(dH){box.classList.add("tenchu");mEl.className="st-main caution";mEl.textContent="⚡ 今日は日天中殺";nEl.textContent="今日の日支はあなたの天中殺の支です。重要な決断は明日以降に。内側を整えたり静かに考える日に向いています。";}
-    else if(mH){box.classList.add("tenchu");mEl.className="st-main caution";mEl.textContent="⚡ 今月は月天中殺";nEl.textContent="今月はあなたの天中殺月です。大きな判断は来月以降に。コツコツ準備する時間として使いましょう。";}
-    else if(yH){box.classList.add("tenchu");mEl.className="st-main caution";mEl.textContent="⚡ 今年は年天中殺";nEl.textContent="今年はあなたの天中殺年です。拡大より整理・内側を深める年。種まきしておくと天中殺明けに花開きます。";}
-    else{box.classList.add("normal");mEl.className="st-main ok";mEl.textContent="✅ 今日は通常運";nEl.textContent="今日はあなたの天中殺と重なる干支はありません。動くなら今日がチャンス。気になっていたことを一歩前に進める日にしましょう。";}
+  var dEl=document.getElementById('d-period');
+  dEl.className="per-val";
+  var hits2=[];
+  var base=new Date(TODAY_Y,TODAY_M-1,TODAY_D);
+  for(var di=0;di<31;di++){
+    var dd=new Date(base);
+    dd.setDate(dd.getDate()+di);
+    var dk=kanshi(dd.getFullYear(),dd.getMonth()+1,dd.getDate());
+    if(dk.dshi===b1||dk.dshi===b2){
+      hits2.push((dd.getMonth()+1)+"/"+dd.getDate()+"("+dk.dkan+dk.dshi+")");
+      if(hits2.length>=3)break;
+    }
   }
+  dEl.textContent=hits2.length>0?hits2.join("  "):"—";
 
-  function showDetail(t){
-    document.getElementById('detail-content').innerHTML=
-      "<div class='det-row'><span class='det-lbl'>本質</span><span class='det-body'>"+t.ess+"</span></div>"+
-      "<div class='det-row'><span class='det-lbl'>家系の縁</span><span class='det-body'>"+t.fam+"</span></div>"+
-      "<div class='det-row'><span class='det-lbl'>活かし方</span><span class='det-body'>"+t.imp+"</span></div>";
+  // 6タイプ
+  var order=["戌亥","申酉","午未","辰巳","寅卯","子丑"],html2="";
+  for(var ti=0;ti<order.length;ti++){
+    var tk=order[ti],td2=TD[tk],mine=(tk===key);
+    html2+="<div class='t-chip"+(mine?" mine":"")+"'>";
+    html2+="<div class='t-chip-name'>"+td2.name+"</div>";
+    html2+="<div class='t-chip-dir'>"+td2.dir+"</div>";
+    html2+="<div class='t-chip-desc'>"+td2.mis+"</div>";
+    html2+="</div>";
   }
+  document.getElementById('types-grid').innerHTML=html2;
 
-  function showPeriods(t){
-    var b1=t.br[0],b2=t.br[1],sY=window.TY,sM=window.TM;
-    var yEl=document.getElementById('y-period'); yEl.className="per-val";
-    var yS=null,yE=null;
-    for(var y=sY;y<sY+13;y++){var ky=kanshi(y,3,15);if(ky.yshi===b1){yS=y;yE=y+1;break;}if(ky.yshi===b2){yS=y-1;yE=y;break;}}
-    if(yS){yEl.textContent=yS+"年〜"+yE+"年";if(sY>=yS&&sY<=yE){yEl.classList.add("alert");yEl.textContent+="（現在天中殺中）";}}else yEl.textContent="—";
-    var mEl=document.getElementById('m-period'); mEl.className="per-val"; var mOk=false;
-    for(var mo=0;mo<25;mo++){var tY=sY,tM=sM+mo;while(tM>12){tM-=12;tY++;}var mk=kanshi(tY,tM,15);if(mk.mshi===b1){var tM2=tM+1,tY2=tY;if(tM2>12){tM2-=12;tY2++;}mEl.textContent=tY+"/"+tM+"月〜"+tY2+"/"+tM2+"月";if(mo===0){mEl.classList.add("alert");mEl.textContent+="（現在天中殺中）";}mOk=true;break;}}
-    if(!mOk)mEl.textContent="—";
-    var dEl=document.getElementById('d-period'); dEl.className="per-val"; var hits=[],base=new Date(sY,sM-1,window.TD);
-    for(var di=0;di<31;di++){var dd=new Date(base);dd.setDate(dd.getDate()+di);var dk=kanshi(dd.getFullYear(),dd.getMonth()+1,dd.getDate());if(dk.dshi===b1||dk.dshi===b2){hits.push((dd.getMonth()+1)+"/"+dd.getDate()+"("+dk.dkan+dk.dshi+")");if(hits.length>=3)break;}}
-    if(hits.length>0){dEl.textContent=hits.join("  ");if(hits[0].indexOf(sM+"/"+window.TD)>=0)dEl.classList.add("alert");}else dEl.textContent="—";
-  }
+  // 結果表示
+  window._myResult={name:t.name,dir:t.dir,mis:t.mis,ess:t.ess,imp:t.imp};
+  rEl.style.display="block";
+  rEl.scrollIntoView({behavior:"smooth",block:"start"});
+});
 
-  function showTypes(myKey){
-    var order=["戌亥","申酉","午未","辰巳","寅卯","子丑"],html="";
-    order.forEach(function(k){var d=TD[k],mine=(k===myKey);html+="<div class='t-chip"+(mine?" mine":"")+"'><div class='t-chip-name'>"+d.name+"</div><div class='t-chip-dir'>"+d.dir+"</div><div class='t-chip-desc'>"+d.mis+"</div></div>";});
-    document.getElementById('types-grid').innerHTML=html;
-  }
-
-  function copyResult(){
-    var r=window.MR; if(!r)return;
-    var text="【㐂びの暦｜天中殺タイプ診断】\n\n私のタイプは「"+r.name+"」（"+r.dir+"）\n"+r.mis+"\n\n本質："+r.ess+"\n活かし方："+r.imp+"\n\n自分のタイプを調べる:\nhttps://nanafushi-tenchu-quick.vercel.app/";
-    navigator.clipboard.writeText(text).then(function(){var el=document.getElementById('copy-done');el.textContent="コピーしました　SNSに貼り付けてどうぞ";setTimeout(function(){el.textContent="";},4000);}).catch(function(){document.getElementById('copy-done').textContent="コピーできませんでした";});
-  }
-
-  initBanner();
-  </script>
+// コピー
+document.getElementById('btn-copy').addEventListener('click', function(){
+  var r=window._myResult;
+  if(!r)return;
+  var lines=[
+    "【㐂びの暦｜天中殺タイプ診断】",
+    "",
+    "私のタイプは「"+r.name+"」（"+r.dir+"）",
+    r.mis,
+    "",
+    "本質："+r.ess,
+    "活かし方："+r.imp,
+    "",
+    "自分のタイプを調べる:",
+    "https://nanafushi-tenchu-quick.vercel.app/"
+  ];
+  var text=lines.join("\n");
+  navigator.clipboard.writeText(text).then(function(){
+    var el=document.getElementById('copy-done');
+    el.textContent="コピーしました　SNSに貼り付けてどうぞ";
+    setTimeout(function(){el.textContent="";},4000);
+  }).catch(function(){
+    document.getElementById('copy-done').textContent="コピーできませんでした";
+  });
+});
+</script>
 </body>
 </html>
