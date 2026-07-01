@@ -49,6 +49,7 @@ body{font-family:"Noto Serif JP","YuMincho","Hiragino Mincho ProN",serif;backgro
 .k-date{font-size:13px;letter-spacing:3px;color:var(--white3);margin-bottom:10px;}
 .k-kanshi{font-size:26px;font-weight:300;letter-spacing:4px;color:var(--white);margin-bottom:6px;}
 .k-gogyo{font-size:14px;color:var(--white3);letter-spacing:1px;margin-bottom:10px;}
+#k-alert:empty{display:none;}
 .k-alert{font-size:14px;line-height:1.8;padding:12px 16px;border-radius:4px;border-left:2px solid var(--red);}
 .k-alert.triple{background:var(--alert-bg);border-color:var(--red);}
 .k-alert.double{background:var(--warn-bg);border-color:rgba(200,169,110,0.6);}
@@ -56,6 +57,23 @@ body{font-family:"Noto Serif JP","YuMincho","Hiragino Mincho ProN",serif;backgro
 .k-alert.triple .k-alert-head{color:#f0a0a0;}
 .k-alert.double .k-alert-head{color:var(--gold);}
 .k-alert-body{color:var(--white2);}
+
+/* 12段階旅フロー */
+.k-flow{margin-top:14px;padding:14px 16px;background:rgba(200,169,110,0.05);border:1px solid rgba(200,169,110,0.2);border-radius:4px;}
+.k-flow-lbl{font-size:11px;letter-spacing:3px;color:var(--white3);margin-bottom:8px;}
+.k-flow-stage{font-size:16px;color:var(--white);letter-spacing:1px;line-height:1.6;}
+.k-flow-stage .k-flow-num{color:var(--gold);font-size:14px;margin-right:8px;}
+.k-flow-stage .k-flow-tag{display:inline-block;font-size:11px;color:#f0a0a0;border:1px solid #a83a2c;padding:1px 6px;border-radius:2px;margin-left:8px;letter-spacing:1px;vertical-align:middle;}
+.k-flow-hint{font-size:12px;color:var(--white3);margin-top:8px;line-height:1.7;}
+
+/* LINE CTA(上部・魅力訴求) */
+.line-cta-top{margin:0 28px 24px;padding:16px 18px;background:linear-gradient(135deg,rgba(6,199,85,0.08),rgba(6,199,85,0.02));border:1px solid rgba(6,199,85,0.4);border-radius:6px;}
+.line-cta-top-head{font-size:13px;color:#4dd884;letter-spacing:2px;margin-bottom:6px;font-weight:400;}
+.line-cta-top-body{font-size:14px;color:var(--white2);line-height:1.8;margin-bottom:12px;}
+.line-cta-top-body strong{color:var(--white);}
+.line-cta-btn{display:block;padding:13px 0;background:#06C755;color:#fff;border-radius:4px;text-align:center;font-size:15px;font-weight:400;letter-spacing:3px;text-decoration:none;transition:opacity .2s;box-shadow:0 2px 8px rgba(6,199,85,0.2);}
+.line-cta-btn:active{opacity:.7;}
+.line-cta-btn:hover{opacity:.9;}
 
 /* 入力フォーム */
 .form-sec{padding:28px 28px 24px;border-bottom:1px solid var(--line);}
@@ -166,7 +184,23 @@ body{font-family:"Noto Serif JP","YuMincho","Hiragino Mincho ProN",serif;backgro
   <div class="k-kanshi" id="k-kanshi"></div>
   <div class="k-gogyo" id="k-gogyo"></div>
   <div id="k-alert"></div>
+  <div class="k-flow" id="k-flow" style="display:none;">
+    <div class="k-flow-lbl">今日の運気(12段階)</div>
+    <div class="k-flow-stage" id="k-flow-stage"></div>
+    <div class="k-flow-hint" id="k-flow-hint"></div>
+  </div>
 </section>
+
+<!-- LINE CTA上部・魅力訴求 -->
+<a href="https://lin.ee/9gPcJRI" target="_blank" rel="noopener" class="line-cta-top" style="display:block;text-decoration:none;">
+  <div class="line-cta-top-head">▽ LINEで もっと詳しく</div>
+  <div class="line-cta-top-body">
+    LINEでは<strong>あなただけの命の設計図</strong>が読める<br>
+    「㐂の暦」<strong>診断サイト</strong>を公開中<br>
+    <span style="color:var(--white3);font-size:13px;">本質・十大主星・十二従星・五行・天中殺まで一気に</span>
+  </div>
+  <span class="line-cta-btn">LINEを追加する</span>
+</a>
 
 <section class="form-sec">
   <div class="form-lead">
@@ -358,15 +392,65 @@ var TODAY_K,TODAY_Y,TODAY_M,TODAY_D;
   var dg=stemGogyo(TODAY_K.dkan);
   var bg=branchGogyo(TODAY_K.dshi);
   document.getElementById('k-gogyo').textContent="日柱："+TODAY_K.dkan+TODAY_K.dshi+"（"+dg+" / 地支："+bg+"）";
-  var go=["午","未"];
-  var hits=(go.indexOf(TODAY_K.yshi)>=0?1:0)+(go.indexOf(TODAY_K.mshi)>=0?1:0)+(go.indexOf(TODAY_K.dshi)>=0?1:0);
-  var al=document.getElementById('k-alert');
-  if(hits>=3){
-    al.innerHTML="<div class='k-alert triple'><div class='k-alert-head'>午未天中殺の方へ</div><div class='k-alert-body'>今日は年・月・日の天中殺が重なったトリプル天冲殺。大きな決断・新規事業・契約は避け、内側を整えるのに最適な日です</div></div>";
-  }else if(hits===2){
-    al.innerHTML="<div class='k-alert double'><div class='k-alert-head'>午未天中殺の方へ</div><div class='k-alert-body'>今日はダブル天冲殺です。重要な決断は慎重に</div></div>";
-  }
+  // ※上部の日付ブロックの警告は、生年月日入力後にその人の天中殺で計算される
+  //  入力前は警告表示しない(旧バージョンでは午未固定で誤表示していた)
 })();
+
+// 12段階旅メタファー(天中殺の2支を基準に十二支順で割り振る)
+var TRAVEL_STAGES=[
+  {emoji:"🧳",name:"荷造り",sub:"準備",hint:"次の一歩の準備を整える日。焦らず整理を"},
+  {emoji:"🚶",name:"旅の出発",sub:"移動",hint:"動き出しに向いた日。小さな一歩を踏み出す"},
+  {emoji:"🌅",name:"目的地到着",sub:"成功",hint:"形になる日。成果が見える瞬間"},
+  {emoji:"⏳",name:"休憩",sub:"ブレーキ",hint:"少し立ち止まる日。無理せず様子を見る"},
+  {emoji:"🎉",name:"旅のハイライト",sub:"最高の瞬間",hint:"エネルギー最大の日。大きく動くのに向く"},
+  {emoji:"🌪️",name:"道中のトラブル",sub:"試練",hint:"想定外が来やすい日。落ち着いて対応"},
+  {emoji:"🛤️",name:"ルート変更",sub:"選択の時",hint:"分かれ道の日。方向を選び直す"},
+  {emoji:"🛍️",name:"お土産購入",sub:"収穫",hint:"手元にモノや形が残る日"},
+  {emoji:"🏠",name:"帰路につく",sub:"次の準備",hint:"一区切りをつけ、次に備える日"},
+  {emoji:"🛌",name:"休息",sub:"充電期間",hint:"体と心を休める日"},
+  {emoji:"🚧",name:"旅の終わり",sub:"低迷期",hint:"日天中殺。大きな決断は避け、内省に"},
+  {emoji:"🔄",name:"次の旅の計画",sub:"再スタート",hint:"日天中殺。次のサイクルを構想する時期"}
+];
+var BRANCH_ORDER=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+
+// 天中殺の2支を基準に、今日の日支が第何段階か計算
+function getTravelStage(tenchuBr,todayDshi){
+  // 天中殺の第1支(例:午未なら"午")を「11.旅の終わり」の位置とする
+  // なぜなら天中殺の2支=11・12段階(低迷+再スタート)だから
+  // 逆算:午の1つ前(巳)が10、その前(辰)が9…
+  var startIdx=BRANCH_ORDER.indexOf(tenchuBr[0]); // 天中殺第1支のindex
+  var todayIdx=BRANCH_ORDER.indexOf(todayDshi);
+  // 天中殺第1支=段階11(index=10)とする
+  // 今日の支のindex - 天中殺第1支のindex + 10 (mod 12)
+  var stage=((todayIdx-startIdx+10)%12); // 0-11
+  return TRAVEL_STAGES[stage];
+}
+
+// ユーザーの天中殺グループ確定後に日付ブロックの警告と旅フローを更新
+function updateKoyomiBlock(tenchuKey){
+  var t=TD[tenchuKey];
+  var yH=t.br.indexOf(TODAY_K.yshi)>=0;
+  var mH=t.br.indexOf(TODAY_K.mshi)>=0;
+  var dH=t.br.indexOf(TODAY_K.dshi)>=0;
+  var hits=(yH?1:0)+(mH?1:0)+(dH?1:0);
+  var al=document.getElementById('k-alert');
+  al.innerHTML="";
+  if(hits>=3){
+    al.innerHTML="<div class='k-alert triple'><div class='k-alert-head'>"+t.name+"の方へ</div><div class='k-alert-body'>今日は年・月・日の天中殺が重なったトリプル天冲殺。大きな決断・新規事業・契約は避け、内側を整えるのに最適な日です</div></div>";
+  }else if(hits===2){
+    al.innerHTML="<div class='k-alert double'><div class='k-alert-head'>"+t.name+"の方へ</div><div class='k-alert-body'>今日はダブル天冲殺です。重要な決断は慎重に</div></div>";
+  }
+  // 12段階旅フロー
+  var stg=getTravelStage(t.br,TODAY_K.dshi);
+  var flowBox=document.getElementById('k-flow');
+  var stageEl=document.getElementById('k-flow-stage');
+  var hintEl=document.getElementById('k-flow-hint');
+  var stageNum=TRAVEL_STAGES.indexOf(stg)+1;
+  var isTenchuDay=(stageNum===11||stageNum===12);
+  stageEl.innerHTML="<span class='k-flow-num'>"+stageNum+"</span>"+stg.emoji+" "+stg.name+"("+stg.sub+")"+(isTenchuDay?"<span class='k-flow-tag'>日天中殺</span>":"");
+  hintEl.textContent=stg.hint;
+  flowBox.style.display="block";
+}
 
 document.getElementById('btn-calc').addEventListener('click',function(){
   var eEl=document.getElementById('err');
@@ -386,6 +470,8 @@ document.getElementById('btn-calc').addEventListener('click',function(){
   var k=kanshi(y,m,d);
   var key=getKey(k.dIdx);
   var t=TD[key];
+  // 上部の日付ブロックをこの人の天中殺で再計算(バグ修正+旅フロー表示)
+  updateKoyomiBlock(key);
   document.getElementById('res-name').textContent=t.name;
   document.getElementById('res-dir').textContent=t.dir;
   document.getElementById('res-mis').textContent=t.mis;
