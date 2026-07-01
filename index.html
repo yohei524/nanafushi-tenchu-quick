@@ -7,6 +7,14 @@
 <meta name="description" content="生年月日を入れるだけで、あなたの天中殺と運気の流れがわかります。占い師ナナフシ(㐂)監修の無料診断。">
 <meta property="og:title" content="㐂の暦・天中殺">
 <meta property="og:description" content="生年月日を入れるだけで、あなたの天中殺と運気の流れがわかります。">
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#001428">
+<!-- iOS Safari用 -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="㐂の暦">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -65,6 +73,27 @@ body{font-family:"Noto Serif JP","YuMincho","Hiragino Mincho ProN",serif;backgro
 .k-flow-stage .k-flow-num{color:var(--gold);font-size:14px;margin-right:8px;}
 .k-flow-stage .k-flow-tag{display:inline-block;font-size:11px;color:#f0a0a0;border:1px solid #a83a2c;padding:1px 6px;border-radius:2px;margin-left:8px;letter-spacing:1px;vertical-align:middle;}
 .k-flow-hint{font-size:12px;color:var(--white3);margin-top:8px;line-height:1.7;}
+
+/* カードめくり(紙がひらり)アニメーション */
+.k-card-wrap{margin-top:14px;perspective:1200px;-webkit-perspective:1200px;}
+.k-card{position:relative;width:100%;aspect-ratio:1/1;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform 1s cubic-bezier(0.4,0,0.2,1);cursor:pointer;}
+.k-card.flipping{transform:rotateY(180deg);}
+.k-card-face{position:absolute;top:0;left:0;width:100%;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:6px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.5),0 2px 8px rgba(200,169,110,0.15);}
+.k-card-front{background:linear-gradient(135deg,#001835,#002548);display:flex;align-items:center;justify-content:center;border:1px solid rgba(200,169,110,0.3);}
+.k-card-front::before{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60%;height:60%;border:1px solid rgba(200,169,110,0.2);border-radius:50%;}
+.k-card-front-inner{position:relative;text-align:center;color:var(--gold);}
+.k-card-front-inner .kf-marker{font-size:56px;font-weight:200;margin-bottom:8px;}
+.k-card-front-inner .kf-label{font-size:12px;letter-spacing:6px;color:var(--white3);}
+.k-card-back{background:#000;transform:rotateY(180deg);-webkit-transform:rotateY(180deg);}
+.k-card-back img{display:block;width:100%;height:100%;object-fit:cover;}
+.k-card-caption{position:absolute;bottom:0;left:0;right:0;padding:12px 14px;background:linear-gradient(to top,rgba(0,20,40,0.9),transparent);color:var(--white);font-size:14px;line-height:1.5;letter-spacing:1px;}
+.k-card-caption .kc-num{color:var(--gold);font-size:12px;margin-right:6px;}
+.k-card-caption .kc-tag{display:inline-block;font-size:10px;color:#f0a0a0;border:1px solid #a83a2c;padding:1px 5px;border-radius:2px;margin-left:6px;letter-spacing:1px;vertical-align:middle;}
+
+/* 再入力トリガー(2回目以降モード) */
+.k-recheck{margin-top:10px;text-align:center;}
+.k-recheck-btn{background:transparent;border:1px solid var(--line);color:var(--white3);padding:8px 16px;border-radius:3px;font-size:12px;letter-spacing:2px;cursor:pointer;font-family:inherit;}
+.k-recheck-btn:hover{border-color:var(--gold2);color:var(--gold);}
 
 /* LINE CTA(上部・魅力訴求) */
 .line-cta-top{margin:0 28px 24px;padding:16px 18px;background:linear-gradient(135deg,rgba(6,199,85,0.08),rgba(6,199,85,0.02));border:1px solid rgba(6,199,85,0.4);border-radius:6px;}
@@ -188,6 +217,24 @@ body{font-family:"Noto Serif JP","YuMincho","Hiragino Mincho ProN",serif;backgro
     <div class="k-flow-lbl">今日の運気(12段階)</div>
     <div class="k-flow-stage" id="k-flow-stage"></div>
     <div class="k-flow-hint" id="k-flow-hint"></div>
+    <!-- カードめくり画像 -->
+    <div class="k-card-wrap">
+      <div class="k-card" id="k-card">
+        <div class="k-card-face k-card-front">
+          <div class="k-card-front-inner">
+            <div class="kf-marker">㐂</div>
+            <div class="kf-label">TAP TO REVEAL</div>
+          </div>
+        </div>
+        <div class="k-card-face k-card-back">
+          <img id="k-card-img" src="" alt="旅の段階">
+          <div class="k-card-caption" id="k-card-caption"></div>
+        </div>
+      </div>
+    </div>
+    <div class="k-recheck" id="k-recheck" style="display:none;">
+      <button class="k-recheck-btn" id="k-recheck-btn">別の生年月日で見る</button>
+    </div>
   </div>
 </section>
 
@@ -330,7 +377,7 @@ function branchGogyo(s){
 }
 
 var TD={
-  "戌亥":{name:"戌亥天中殺",dir:"北西",br:["戌","亥"],
+  "戌亥":{name:"戌亥天中殺",dir:"北西",br:["戌","亥"],imgKey:"inui",
     mis:"6タイプの中で最もパワフルで独立心が強い。精神世界・哲学・霊感・芸術に縁が深い「開祖運」",
     rows:[
       {lbl:"性格",body:"目に見えないものに価値を置く。宗教家・哲学者・芸術家に多く、物質より精神を優先するタイプ。カリスマ度と変人度は6タイプ中最高"},
@@ -338,7 +385,7 @@ var TD={
       {lbl:"陽転の形",body:"精神世界・哲学・芸術など形のないものを深めるほど運気が上がる。物質への執着を手放した時に本領を発揮する"},
       {lbl:"陰転の形",body:"現実欲・お金への執着が強くなると波が乱れやすい。「もっと、もっと」という方向に動くと枠の外に落ちる"}
     ]},
-  "申酉":{name:"申酉天中殺",dir:"西方",br:["申","酉"],
+  "申酉":{name:"申酉天中殺",dir:"西方",br:["申","酉"],imgKey:"shinyu",
     mis:"組織適性が6タイプ中最高。友人運・横のつながりが強く、伝統と革新の橋渡し役を担う「継承運」",
     rows:[
       {lbl:"性格",body:"個性的でカリスマ性が出やすいが、人と歩調が合わないことも多い。革新的でありながら古いものの価値も知っている"},
@@ -346,7 +393,7 @@ var TD={
       {lbl:"陽転の形",body:"歴史・伝統・文化を学びながら、それを現代に翻訳する仕事が向く。友人・仲間との協力で力が増す。晩年ほど安定する"},
       {lbl:"陰転の形",body:"一人でゼロから立ち上げようとすると力が分散する。縦（上下）より横（対等）のつながりを優先することが鍵"}
     ]},
-  "午未":{name:"午未天中殺",dir:"南方",br:["午","未"],
+  "午未":{name:"午未天中殺",dir:"南方",br:["午","未"],imgKey:"gohitsuji",
     mis:"目上運が6タイプ中最高。親・上司からの引き立てを受けやすい。古い流れを断ち切る「末代運」",
     rows:[
       {lbl:"性格",body:"繊細さが6タイプ中最高。感受性が豊かで、家庭・愛情・基盤づくりに強いテーマを持つ。感情の波と向き合うことが課題"},
@@ -354,7 +401,7 @@ var TD={
       {lbl:"陽転の形",body:"目上・親・師匠との縁を大切にするほど運が開く。上からの引き立てを受けやすいタイプ。家庭基盤を整えることが運気の土台になる"},
       {lbl:"陰転の形",body:"古い環境・人間関係にしがみつくと運気が停滞する。思い切って手放す決断ができると次のステージが開く"}
     ]},
-  "辰巳":{name:"辰巳天中殺",dir:"南東",br:["辰","巳"],
+  "辰巳":{name:"辰巳天中殺",dir:"南東",br:["辰","巳"],imgKey:"tatsumi",
     mis:"現実主義・独立向きで、人と違う道を歩む宿命。「はみ出し運」とも呼ばれる個性の強いタイプ",
     rows:[
       {lbl:"性格",body:"変人度・革新的度が6タイプ中最高。既成概念の外側に才能がある。「変わってる」と言われることが多いが、それが本来の宿命"},
@@ -362,7 +409,7 @@ var TD={
       {lbl:"陽転の形",body:"専門性・独自の哲学・ニッチな領域を深掘りするほど代替のきかない存在になる。一対多より一対一の深い関係で才能が開く"},
       {lbl:"陰転の形",body:"組織の論理・周囲の常識に合わせようとすると疲弊する。自分にしかない視点や専門性を磨く方向に舵を切ることが鍵"}
     ]},
-  "寅卯":{name:"寅卯天中殺",dir:"東方",br:["寅","卯"],
+  "寅卯":{name:"寅卯天中殺",dir:"東方",br:["寅","卯"],imgKey:"inbo",
     mis:"継承向き度・1→10力が6タイプ中最高。運気の波が激しく、父親運・配偶者運が強い「跡取り運」",
     rows:[
       {lbl:"性格",body:"誰かが作ったものを引き継いで発展させることが得意。新しい人間関係より古いお付き合いを大事にする。勝負事・一か八かに強い"},
@@ -370,7 +417,7 @@ var TD={
       {lbl:"陽転の形",body:"狭く深い人間関係・丁寧な仕事・精神を高める学びの中で本来の力が出る。ゼロから立ち上げるより、既存のものを育てる場所に身を置くのが正解"},
       {lbl:"陰転の形",body:"新しい環境・新しい人間関係への急な転換は運気を乱す。母親・兄弟姉妹への過度な依存もリスク。落ち着いてゆっくり考えることができる環境が大切"}
     ]},
-  "子丑":{name:"子丑天中殺",dir:"北方",br:["子","丑"],
+  "子丑":{name:"子丑天中殺",dir:"北方",br:["子","丑"],imgKey:"shichu",
     mis:"0→1力・下目運が6タイプ中最高。大器晩成で、ゼロから何かを始める「初代運」",
     rows:[
       {lbl:"性格",body:"個性が突き抜ける。「自分らしさ」を貫くと運が開く一匹狼タイプ。親に頼れない宿命を持ち、自力で道を切り拓く"},
@@ -426,8 +473,17 @@ function getTravelStage(tenchuBr,todayDshi){
   return TRAVEL_STAGES[stage];
 }
 
+// 画像拡張子マップ(shinyu_11だけjpeg・他はwebp)
+var IMG_EXT={
+  "shinyu_11":"jpeg"
+};
+function imgExt(imgKey,stage){
+  var k=imgKey+"_"+stage;
+  return IMG_EXT[k]||"webp";
+}
+
 // ユーザーの天中殺グループ確定後に日付ブロックの警告と旅フローを更新
-function updateKoyomiBlock(tenchuKey){
+function updateKoyomiBlock(tenchuKey,animate){
   var t=TD[tenchuKey];
   var yH=t.br.indexOf(TODAY_K.yshi)>=0;
   var mH=t.br.indexOf(TODAY_K.mshi)>=0;
@@ -450,7 +506,71 @@ function updateKoyomiBlock(tenchuKey){
   stageEl.innerHTML="<span class='k-flow-num'>"+stageNum+"</span>"+stg.emoji+" "+stg.name+"("+stg.sub+")"+(isTenchuDay?"<span class='k-flow-tag'>日天中殺</span>":"");
   hintEl.textContent=stg.hint;
   flowBox.style.display="block";
+
+  // カード画像設定
+  var imgEl=document.getElementById('k-card-img');
+  var captionEl=document.getElementById('k-card-caption');
+  var ext=imgExt(t.imgKey,stageNum);
+  imgEl.src="images/"+t.imgKey+"_"+stageNum+"."+ext;
+  imgEl.alt=t.name+" "+stageNum+" "+stg.name;
+  captionEl.innerHTML="<span class='kc-num'>"+stageNum+"</span>"+stg.emoji+" "+stg.name+"<br><span style='font-size:12px;color:rgba(248,246,242,0.7);'>"+stg.sub+"</span>"+(isTenchuDay?"<span class='kc-tag'>日天中殺</span>":"");
+
+  // カードめくりアニメ発火
+  var card=document.getElementById('k-card');
+  card.classList.remove('flipping');
+  if(animate){
+    // 少し遅延させてめくれる感を出す
+    setTimeout(function(){
+      card.classList.add('flipping');
+    },400);
+  }else{
+    // 既にめくれた状態で表示
+    card.classList.add('flipping');
+  }
 }
+
+// LocalStorage:生年月日と天中殺キーを保存
+var LS_KEY="nanafushi-koyomi-user";
+function saveUser(y,m,d,tenchuKey){
+  try{
+    localStorage.setItem(LS_KEY,JSON.stringify({y:y,m:m,d:d,tenchuKey:tenchuKey}));
+  }catch(e){}
+}
+function loadUser(){
+  try{
+    var s=localStorage.getItem(LS_KEY);
+    if(!s)return null;
+    return JSON.parse(s);
+  }catch(e){return null;}
+}
+function clearUser(){
+  try{localStorage.removeItem(LS_KEY);}catch(e){}
+}
+
+// 起動時にLocalStorageチェックして自動表示
+// (実際の描画は btn-calc の click ハンドラー登録後に走らせるため、後段の autoRestore で実行)
+var _pendingRestore=null;
+(function checkRestore(){
+  var u=loadUser();
+  if(!u||!u.tenchuKey||!TD[u.tenchuKey])return;
+  document.getElementById('inp-y').value=u.y;
+  document.getElementById('inp-m').value=u.m;
+  document.getElementById('inp-d').value=u.d;
+  _pendingRestore=u;
+})();
+
+// 再チェックボタン
+document.getElementById('k-recheck-btn').addEventListener('click',function(){
+  clearUser();
+  document.getElementById('inp-y').value="";
+  document.getElementById('inp-m').value="";
+  document.getElementById('inp-d').value="";
+  document.getElementById('result').style.display="none";
+  document.getElementById('k-flow').style.display="none";
+  document.getElementById('k-alert').innerHTML="";
+  document.getElementById('k-recheck').style.display="none";
+  window.scrollTo({top:0,behavior:'smooth'});
+});
 
 document.getElementById('btn-calc').addEventListener('click',function(){
   var eEl=document.getElementById('err');
@@ -470,8 +590,11 @@ document.getElementById('btn-calc').addEventListener('click',function(){
   var k=kanshi(y,m,d);
   var key=getKey(k.dIdx);
   var t=TD[key];
-  // 上部の日付ブロックをこの人の天中殺で再計算(バグ修正+旅フロー表示)
-  updateKoyomiBlock(key);
+  // 上部の日付ブロックをこの人の天中殺で再計算(バグ修正+旅フロー表示・初回めくれアニメ)
+  updateKoyomiBlock(key,true);
+  // LocalStorage保存(次回訪問時に自動復元)
+  saveUser(y,m,d,key);
+  document.getElementById('k-recheck').style.display="block";
   document.getElementById('res-name').textContent=t.name;
   document.getElementById('res-dir').textContent=t.dir;
   document.getElementById('res-mis').textContent=t.mis;
@@ -573,8 +696,18 @@ document.getElementById('btn-calc').addEventListener('click',function(){
   document.getElementById('types-grid').innerHTML=html2;
   window._myResult={name:t.name,dir:t.dir,mis:t.mis,ess:t.ess,imp:t.imp};
   rEl.style.display="block";
-  rEl.scrollIntoView({behavior:"smooth",block:"start"});
+  // 復元モードではスクロールしない(ユーザーが自分で下にスクロールするから)
+  if(!window._restoreMode){
+    rEl.scrollIntoView({behavior:"smooth",block:"start"});
+  }
 });
+
+// LocalStorage復元があれば btn-calc を自動発火
+if(_pendingRestore){
+  window._restoreMode=true;
+  document.getElementById('btn-calc').click();
+  window._restoreMode=false;
+}
 
 document.getElementById('btn-copy').addEventListener('click',function(){
   var r=window._myResult;
