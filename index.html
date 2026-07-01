@@ -277,7 +277,7 @@ body{font-family:"Noto Serif JP","YuMincho","Hiragino Mincho ProN",serif;backgro
   <section class="sec">
     <div class="sec-ttl">TODAY</div>
     <div class="st-box" id="st-box">
-      <div class="st-lbl">今日のあなたの状態</div>
+      <div class="st-lbl">今日の過ごし方</div>
       <div class="st-main" id="st-main">—</div>
       <div class="st-note" id="st-note">—</div>
     </div>
@@ -434,20 +434,46 @@ var TODAY_K,TODAY_Y,TODAY_M,TODAY_D;
 })();
 
 // 12段階旅メタファー(天中殺の2支を基準に十二支順で割り振る)
-// hint は「12日サイクル中の相対値」であることを前提とした短い一言
+// 六星占術の12運気(種子・緑生・立花・健弱・達成・乱気・再会・財成・安定・陰影・停止・減退)を
+// 旅のメタファーに翻訳。㐂の暦・12周期(㐂さん資料ベース)
+// hint:旅フロー(k-flow)用の一行 / longHint:TODAYセクション用の詳細
 var TRAVEL_STAGES=[
-  {emoji:"🧳",name:"荷造り",sub:"準備",hint:"12日サイクルの入口。次に向けての準備・整理に向く日"},
-  {emoji:"🚶",name:"旅の出発",sub:"移動",hint:"サイクルの2日目。小さな一歩を踏み出すのに向く"},
-  {emoji:"🌅",name:"目的地到着",sub:"成功",hint:"12日中でも形になりやすい日。成果が見える瞬間"},
-  {emoji:"⏳",name:"休憩",sub:"ブレーキ",hint:"一旦立ち止まる日。無理せず様子を見る"},
-  {emoji:"🎉",name:"旅のハイライト",sub:"最高の瞬間",hint:"12日サイクル中もっとも運気が高い日。動くなら今日"},
-  {emoji:"🌪️",name:"道中のトラブル",sub:"試練",hint:"想定外が起きやすい日。落ち着いて対応"},
-  {emoji:"🛤️",name:"ルート変更",sub:"選択の時",hint:"分かれ道の日。方向を選び直すタイミング"},
-  {emoji:"🛍️",name:"お土産購入",sub:"収穫",hint:"手元にモノや形が残る日"},
-  {emoji:"🏠",name:"帰路につく",sub:"次の準備",hint:"一区切りをつけ、次のサイクルへ備える日"},
-  {emoji:"🛌",name:"休息",sub:"充電期間",hint:"体と心を休める日"},
-  {emoji:"🚧",name:"旅の終わり",sub:"低迷期",hint:"日天中殺。12日サイクルの最も静かな日。大きな決断は避ける"},
-  {emoji:"🔄",name:"次の旅の計画",sub:"再スタート",hint:"日天中殺。次のサイクルを構想する日"}
+  {emoji:"🧳",name:"荷造り",sub:"準備",
+    hint:"新しい何かを始めるのに向いた日",
+    longHint:"新しい何かを始めるのに向いた日。派手な動きより、小さな種をまくくらいのイメージで。今日始めたことは1〜2ヶ月後に芽が出やすい時期です"},
+  {emoji:"🚶",name:"旅の出発",sub:"移動",
+    hint:"始めたことが育ちやすい日",
+    longHint:"始めたことが育ちやすい日。前向きな話・新しい人との会話・学びに向きます。少し勇気を出して踏み出すと、風が味方してくれる感覚があるはず"},
+  {emoji:"🌅",name:"目的地到着",sub:"成功",
+    hint:"「決める」に向いた日",
+    longHint:"「決める」に向いた日。大事な連絡・プレゼン・告白・契約サインなど、勝負どころに立つのに強い日。積み重ねてきた人ほど成果が見えます"},
+  {emoji:"⏳",name:"休憩",sub:"ブレーキ",
+    hint:"体と心が疲れやすい日",
+    longHint:"体と心が疲れやすい日。頑張りすぎず、体調管理を優先。「今日は無理しない」と決めるだけで乗り切れます。大きな決断は明日以降に回すのが吉"},
+  {emoji:"🎉",name:"旅のハイライト",sub:"最高の瞬間",
+    hint:"12日で一番エネルギーが高い日",
+    longHint:"12日で一番エネルギーが高い日。願いや目標が形になりやすい。「今日やっとこう」と思ってたことに集中すると、想像以上の結果がついてくることも"},
+  {emoji:"🌪️",name:"道中のトラブル",sub:"試練",
+    hint:"感情がざわつきやすい日",
+    longHint:"感情がざわつく・小さなトラブルが起きやすい日。人に反応しすぎず、深呼吸してから返事するのがおすすめ。大きな契約・投資は明日以降に"},
+  {emoji:"🛤️",name:"ルート変更",sub:"選択の時",
+    hint:"昔の縁が動き出しやすい日",
+    longHint:"昔の縁が動き出す日。懐かしい人からの連絡・過去のプロジェクトの再開・やり直したかった何かに手を伸ばす、そんな日"},
+  {emoji:"🛍️",name:"お土産購入",sub:"収穫",
+    hint:"実りが返ってくる日",
+    longHint:"実りが返ってくる日。お金・成果・評価が動きやすい。臨時収入や嬉しい依頼が来ることも。ここまで頑張ってきた自分にご褒美をあげてもいい日"},
+  {emoji:"🏠",name:"帰路につく",sub:"次の準備",
+    hint:"穏やかで落ち着ける日",
+    longHint:"穏やかで落ち着ける日。派手なことより、日常を整える・大切な人とゆっくり過ごすのに向きます。「安定」を感じ、次のサイクルへの土台を作る日"},
+  {emoji:"🛌",name:"休息",sub:"充電期間",
+    hint:"少し内側にこもる日",
+    longHint:"少し内側にこもる日。孤独を感じやすいけど、それは充電の合図。目立たない場所で自分の中身を整える時間として使うと、次のサイクルに活きます"},
+  {emoji:"🚧",name:"旅の終わり",sub:"低迷期",
+    hint:"12日サイクルの底・日天中殺",
+    longHint:"日天中殺。12日サイクルの底。物事が停滞しやすく、無気力になりがち。焦らず休むのが正解。ここで動きたい気持ちを抑えられると、次のサイクルが軽くなる"},
+  {emoji:"🔄",name:"次の旅の計画",sub:"再スタート",
+    hint:"次のサイクルの入口・日天中殺",
+    longHint:"日天中殺。12日サイクルの終わり=次のサイクルの入口。エネルギーが少ない中で、静かに次を思い描く日。無理して動かず、内側を整える"}
 ];
 var BRANCH_ORDER=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
 
@@ -624,38 +650,30 @@ document.getElementById('btn-calc').addEventListener('click',function(){
   var dH=t.br.indexOf(TODAY_K.dshi)>=0;
   var hit=(yH?1:0)+(mH?1:0)+(dH?1:0);
   box.className="st-box";
-  // 日運(今日そのもの)を主軸に表示・その上でどの期間の天中殺と重なっているかを分けて説明
+  // 日運(旅の段階)を主軸に「意味と過ごし方」を表示
+  // その上で年/月天中殺と重なっているかを別レイヤーで加える
   var todayStg=getTravelStage(t.br,TODAY_K.dshi);
   var todayStgNum=TRAVEL_STAGES.indexOf(todayStg)+1;
-  var dayHint=todayStg.emoji+" 12日サイクル中の "+todayStgNum+"番目「"+todayStg.name+"」";
-  if(dH){
-    // 日天中殺の日(段階11-12)
+  var isTenchuDay=(todayStgNum===11||todayStgNum===12);
+  // メインタイトルは旅の段階そのもの
+  mEl.textContent=todayStg.emoji+" "+todayStg.name+"("+todayStg.sub+")の日";
+  var noteHtml=todayStg.longHint||todayStg.hint;
+  // 年/月天中殺との重なりを追加注意として表示
+  if(yH&&mH){
+    box.classList.add("triple");mEl.className="st-main alert";
+    noteHtml+="<br><br><span style='color:#f0a0a0;'>※さらに <strong>年+月のダブル天中殺</strong>期間中です("+TODAY_Y+"年〜"+(TODAY_Y+1)+"年 の年天中殺と "+TODAY_Y+"年"+TODAY_M+"月 の月天中殺の重なり)。日々の細かい動きはOK、人生を左右する大きな決断はこの期間を避けるのが吉</span>";
+  }else if(yH){
+    box.classList.add("tenchu");mEl.className=isTenchuDay?"st-main alert":"st-main caution";
+    noteHtml+="<br><br><span style='color:#f0a0a0;'>※現在 "+TODAY_Y+"年〜"+(TODAY_Y+1)+"年 は年天中殺の期間中。拡大より整える・手放す方向で動くと後で効いてきます</span>";
+  }else if(mH){
+    box.classList.add("tenchu");mEl.className=isTenchuDay?"st-main alert":"st-main caution";
+    noteHtml+="<br><br><span style='color:#f0a0a0;'>※現在 "+TODAY_Y+"年"+TODAY_M+"月 は月天中殺の期間中。月をまたぐ大きな判断は来月以降に</span>";
+  }else if(isTenchuDay){
     box.classList.add("tenchu");mEl.className="st-main caution";
-    mEl.textContent="今日は日天中殺";
-    var note="12日サイクルの中で最も静かな位置にいる日。大きな決断は明日以降に。内側を整える日に向く";
-    if(yH&&mH)note+="<br><span style='color:#f0a0a0;'>※さらに 年+月 の天中殺期間中でもあります。今はトリプル状態</span>";
-    else if(yH)note+="<br><span style='color:#f0a0a0;'>※年天中殺("+TODAY_Y+"〜"+(TODAY_Y+1)+"年)期間中でもあります</span>";
-    else if(mH)note+="<br><span style='color:#f0a0a0;'>※月天中殺("+TODAY_Y+"年"+TODAY_M+"月)期間中でもあります</span>";
-    nEl.innerHTML=note;
-  }else if(yH||mH){
-    // 日運は普通(天中殺日ではない)、でも年or月天中殺の期間中
-    box.classList.add("tenchu");mEl.className="st-main caution";
-    if(yH&&mH){
-      mEl.textContent="日運は動ける・でもダブル天中殺期間中";
-      nEl.innerHTML=dayHint+"。日運は使えるが、"+TODAY_Y+"年〜"+(TODAY_Y+1)+"年の年天中殺と "+TODAY_Y+"年"+TODAY_M+"月の月天中殺が重なっている期間。<br>日々の細かい動きはOK、人生を左右する大きな決断はこの期間を避ける";
-    }else if(yH){
-      mEl.textContent="日運は動ける・でも年天中殺期間中";
-      nEl.innerHTML=dayHint+"。日運は使えるが、"+TODAY_Y+"年〜"+(TODAY_Y+1)+"年は年天中殺の2年間。<br>拡大より整える・手放す方向で動くと後で効いてくる";
-    }else{
-      mEl.textContent="日運は動ける・でも月天中殺期間中";
-      nEl.innerHTML=dayHint+"。日運は使えるが、"+TODAY_Y+"年"+TODAY_M+"月は月天中殺。<br>月をまたぐ大きな判断は来月以降に";
-    }
   }else{
-    // 天中殺の影響なし
     box.classList.add("normal");mEl.className="st-main ok";
-    mEl.textContent="今日は天中殺の影響なし";
-    nEl.innerHTML=dayHint+"。年・月・日いずれもあなたの天中殺の支と重なっていません";
   }
+  nEl.innerHTML=noteHtml;
 
   var detHtml="";
   for(var ri=0;ri<t.rows.length;ri++){
