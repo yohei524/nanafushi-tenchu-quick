@@ -3,204 +3,250 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>天中殺タイプ診断｜㐂びの暦</title>
+<title>㐂の暦・天中殺</title>
+<meta name="description" content="生年月日を入れるだけで、あなたの天中殺と運気の流れがわかります。占い師ナナフシ(㐂)監修の無料診断。">
+<meta property="og:title" content="㐂の暦・天中殺">
+<meta property="og:description" content="生年月日を入れるだけで、あなたの天中殺と運気の流れがわかります。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
-  --bg:#f7f3ee;--bg2:#f0ebe3;--ink:#2c2318;--ink2:#5c4f3d;
-  --gold:#8c6d3f;--gold2:#b8954a;--gold3:#e8d5a0;
-  --red:#8b2a2a;--accent:#3a2d1e;
-  --card:#ffffff;--border:rgba(140,109,63,0.18);--border2:rgba(140,109,63,0.32);
+  --bg:#001428;
+  --bg2:#001835;
+  --line:rgba(255,255,255,0.1);
+  --line2:rgba(255,255,255,0.06);
+  --white:#f8f6f2;
+  --white2:rgba(248,246,242,0.6);
+  --white3:rgba(248,246,242,0.35);
+  --gold:#c8a96e;
+  --gold2:rgba(200,169,110,0.5);
+  --red:#c0392b;
+  --alert-bg:rgba(120,30,30,0.35);
+  --alert-border:rgba(192,57,43,0.35);
+  --warn-bg:rgba(100,70,10,0.3);
+  --warn-border:rgba(180,130,30,0.35);
 }
-body{font-family:"Noto Serif JP","YuMincho","Hiragino Mincho ProN",serif;background:var(--bg);min-height:100vh;color:var(--ink);-webkit-font-smoothing:antialiased;}
-.container{max-width:480px;margin:0 auto;padding:0 0 48px;}
-.site-header{background:var(--accent);padding:28px 20px 22px;text-align:center;}
-.header-tag{font-size:10px;letter-spacing:3px;color:rgba(232,213,160,0.55);margin-bottom:12px;}
-.yy-wrap{position:relative;width:60px;height:60px;margin:0 auto 14px;}
-.yy{width:60px;height:60px;border-radius:50%;background:linear-gradient(to right,#f5efe0 50%,#2c2318 50%);border:2px solid rgba(232,213,160,0.35);position:relative;box-shadow:0 0 20px rgba(232,213,160,0.12);animation:spin 20s linear infinite;}
-.yy::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:30px;height:30px;border-radius:50%;background:#f5efe0;}
-.yy::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:30px;height:30px;border-radius:50%;background:#2c2318;}
-.yy-dot-w{position:absolute;top:7px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:#2c2318;z-index:2;}
-.yy-dot-b{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:8px;height:8px;border-radius:50%;background:#f5efe0;z-index:2;}
+html,body{height:100%;}
+body{font-family:"Noto Serif JP","YuMincho","Hiragino Mincho ProN",serif;background:var(--bg);color:var(--white);-webkit-font-smoothing:antialiased;font-weight:400;font-size:18px;}
+.wrap{max-width:480px;margin:0 auto;}
+
+/* ヘッダー */
+.hd{padding:44px 28px 32px;border-bottom:1px solid var(--line);}
+.hd-tag{font-size:13px;letter-spacing:4px;color:var(--white3);margin-bottom:20px;}
+.yy-wrap{width:52px;height:52px;position:relative;margin-bottom:20px;}
+.yy{width:52px;height:52px;border-radius:50%;background:linear-gradient(to right,var(--white) 50%,var(--bg2) 50%);border:1px solid rgba(200,169,110,0.3);position:relative;animation:spin 24s linear infinite;}
+.yy::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);width:26px;height:26px;border-radius:50%;background:var(--white);}
+.yy::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:26px;height:26px;border-radius:50%;background:var(--bg2);}
+.yy-dot-w{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:7px;height:7px;border-radius:50%;background:var(--bg2);z-index:2;}
+.yy-dot-b{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:7px;height:7px;border-radius:50%;background:var(--white);z-index:2;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.site-ttl{font-size:19px;letter-spacing:2px;color:var(--gold3);font-weight:300;margin-bottom:4px;}
-.site-sub{font-size:10px;color:rgba(232,213,160,0.4);letter-spacing:3px;}
-.koyomi-banner{background:var(--accent);border-top:1px solid rgba(232,213,160,0.1);padding:14px 20px 18px;}
-.koyomi-date{font-size:10px;color:rgba(232,213,160,0.5);letter-spacing:2px;margin-bottom:6px;}
-.koyomi-kanshi{font-size:21px;font-weight:400;color:var(--gold3);letter-spacing:3px;margin-bottom:5px;}
-.koyomi-gogyo{font-size:11px;color:rgba(232,213,160,0.55);letter-spacing:1px;margin-bottom:6px;}
-.koyomi-alert{font-size:11px;color:#f0b0b0;background:rgba(139,42,42,0.45);border:1px solid rgba(192,57,43,0.35);border-radius:6px;padding:8px 12px;line-height:1.7;margin-top:6px;}
-.section{background:var(--card);border-bottom:1px solid var(--border);padding:22px 20px;}
-.sec-label{font-size:9px;letter-spacing:4px;color:var(--gold);opacity:.75;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
-.sec-label::before,.sec-label::after{content:"";flex:1;height:1px;background:linear-gradient(to right,transparent,var(--border2),transparent);}
-.input-lead{text-align:center;margin-bottom:18px;}
-.input-lead p{font-size:14px;color:var(--ink);margin-bottom:3px;}
-.input-lead small{font-size:11px;color:var(--ink2);opacity:.65;}
-.date-row{display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:16px;}
-.date-field{display:flex;align-items:center;gap:5px;}
-.date-input{width:70px;padding:12px 4px;border-radius:6px;border:1px solid var(--border2);background:#faf8f4;font-size:20px;font-family:inherit;text-align:center;color:var(--ink);-webkit-appearance:none;appearance:none;}
-.date-input.yr{width:86px;}
-.date-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 2px rgba(140,109,63,0.1);}
-.date-input::placeholder{color:rgba(140,109,63,0.28);font-size:12px;}
-.date-lbl{font-size:13px;color:var(--ink2);}
-.btn-calc{display:block;width:100%;padding:14px;background:var(--accent);border:none;color:var(--gold3);border-radius:8px;font-family:inherit;font-size:14px;letter-spacing:3px;cursor:pointer;}
-.btn-calc:active{opacity:.8;}
-.error{color:var(--red);font-size:12px;text-align:center;margin-top:8px;min-height:14px;}
-.result-area{display:none;}
-.type-hero{background:var(--accent);padding:30px 20px 24px;text-align:center;}
-.t-micro{font-size:9px;letter-spacing:4px;color:rgba(232,213,160,0.45);margin-bottom:10px;}
-.t-name{font-size:30px;font-weight:500;color:var(--gold3);letter-spacing:3px;margin-bottom:6px;}
-.t-dir-badge{display:inline-block;border:1px solid rgba(232,213,160,0.28);color:rgba(232,213,160,0.6);font-size:10px;padding:3px 14px;border-radius:20px;margin-bottom:16px;letter-spacing:2px;}
-.t-mis{font-size:15px;color:rgba(232,213,160,0.85);letter-spacing:1px;font-weight:300;line-height:1.7;border-top:1px solid rgba(232,213,160,0.12);padding-top:14px;}
-.share-wrap{padding:12px 20px;background:var(--card);border-bottom:1px solid var(--border);}
-.btn-copy{display:block;width:100%;padding:11px;border-radius:6px;font-family:inherit;font-size:12px;text-align:center;cursor:pointer;background:#faf8f4;border:1px solid var(--border2);color:var(--gold);}
-.copy-done{font-size:11px;color:#6a8c5a;text-align:center;margin-top:6px;min-height:13px;}
-.st-box{border-radius:8px;padding:14px 16px;border:1px solid transparent;}
-.st-box.normal{background:#f0f7ee;border-color:#b8d8b0;}
-.st-box.tenchu{background:#fdf5e6;border-color:#d4b87a;}
-.st-box.triple{background:#fdf0f0;border-color:#d4a0a0;}
-.st-head{font-size:9px;color:var(--gold);letter-spacing:3px;margin-bottom:6px;opacity:.7;}
-.st-main{font-size:16px;font-weight:500;margin-bottom:6px;}
-.st-main.ok{color:#4a7a4a;}
-.st-main.caution{color:#8c6d20;}
-.st-main.alert{color:var(--red);}
-.st-note{font-size:12px;color:var(--ink2);line-height:1.8;}
-.det-row{padding:12px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.8;}
+.hd-ttl{font-size:24px;font-weight:200;letter-spacing:3px;color:var(--white);margin-bottom:3px;}
+.hd-ttl em{color:var(--gold);font-style:normal;}
+
+/* 暦 */
+.koyomi{padding:24px 28px;border-bottom:1px solid var(--line);}
+.k-date{font-size:13px;letter-spacing:3px;color:var(--white3);margin-bottom:10px;}
+.k-kanshi{font-size:26px;font-weight:300;letter-spacing:4px;color:var(--white);margin-bottom:6px;}
+.k-gogyo{font-size:14px;color:var(--white3);letter-spacing:1px;margin-bottom:10px;}
+.k-alert{font-size:14px;line-height:1.8;padding:12px 16px;border-radius:4px;border-left:2px solid var(--red);}
+.k-alert.triple{background:var(--alert-bg);border-color:var(--red);}
+.k-alert.double{background:var(--warn-bg);border-color:rgba(200,169,110,0.6);}
+.k-alert-head{font-weight:400;margin-bottom:3px;}
+.k-alert.triple .k-alert-head{color:#f0a0a0;}
+.k-alert.double .k-alert-head{color:var(--gold);}
+.k-alert-body{color:var(--white2);}
+
+/* 入力フォーム */
+.form-sec{padding:28px 28px 24px;border-bottom:1px solid var(--line);}
+.form-lead{margin-bottom:20px;}
+.form-lead p{font-size:17px;font-weight:300;color:var(--white);margin-bottom:4px;letter-spacing:1px;}
+.form-lead small{font-size:14px;color:var(--white3);}
+.date-row{display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+.date-field{display:flex;align-items:center;gap:6px;}
+.date-in{padding:12px 6px;border-radius:3px;border:1px solid var(--line);background:rgba(255,255,255,0.05);font-size:22px;font-family:inherit;font-weight:300;text-align:center;color:var(--white);width:72px;-webkit-appearance:none;appearance:none;}
+.date-in.yr{width:90px;}
+.date-in:focus{outline:none;border-color:var(--gold2);}
+.date-in::placeholder{color:var(--white3);font-size:12px;}
+.date-lbl{font-size:16px;color:var(--white3);}
+.btn-go{display:block;width:100%;padding:16px;background:transparent;border:1px solid var(--gold2);color:var(--gold);border-radius:3px;font-family:inherit;font-size:16px;font-weight:300;letter-spacing:4px;cursor:pointer;transition:border-color .2s,color .2s;}
+.btn-go:active,.btn-go:hover{border-color:var(--gold);color:var(--white);}
+.err{color:#f09090;font-size:14px;text-align:center;margin-top:8px;min-height:14px;}
+
+/* 結果 */
+.result{display:none;}
+
+.type-hero{padding:32px 28px 28px;border-bottom:1px solid var(--line);}
+.t-micro{font-size:12px;letter-spacing:5px;color:var(--white3);margin-bottom:14px;}
+.t-name{font-size:32px;font-weight:300;letter-spacing:3px;color:var(--white);margin-bottom:6px;}
+.t-dir{font-size:13px;letter-spacing:2px;color:var(--gold);margin-bottom:18px;}
+.t-mis{font-size:16px;color:var(--white2);line-height:1.9;padding-top:18px;border-top:1px solid var(--line2);}
+
+.copy-sec{padding:14px 28px;border-bottom:1px solid var(--line);}
+.btn-copy{display:block;width:100%;padding:13px;border-radius:3px;font-family:inherit;font-size:14px;text-align:center;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--white3);letter-spacing:2px;}
+.btn-copy:active{border-color:var(--gold2);color:var(--gold);}
+.copy-done{font-size:14px;color:rgba(150,200,150,0.8);text-align:center;margin-top:6px;min-height:13px;}
+
+/* セクション共通 */
+.sec{padding:24px 28px;border-bottom:1px solid var(--line);}
+.sec-ttl{font-size:12px;letter-spacing:4px;color:var(--white3);margin-bottom:16px;}
+
+/* 今日の状態 */
+.st-box{padding:14px 16px;border-radius:3px;border-left:2px solid transparent;}
+.st-box.normal{border-color:rgba(80,140,80,0.5);}
+.st-box.tenchu{border-color:var(--gold2);}
+.st-box.triple{border-color:rgba(192,57,43,0.6);}
+.st-lbl{font-size:12px;letter-spacing:3px;color:var(--white3);margin-bottom:6px;}
+.st-main{font-size:20px;font-weight:300;margin-bottom:6px;}
+.st-main.ok{color:rgba(160,210,160,0.9);}
+.st-main.caution{color:var(--gold);}
+.st-main.alert{color:#f09090;}
+.st-note{font-size:15px;color:var(--white2);line-height:1.8;}
+
+/* 本質 */
+.det-row{padding:16px 0;border-bottom:1px solid var(--line2);font-size:15px;line-height:1.9;}
 .det-row:last-child{border-bottom:none;}
-.det-lbl{display:inline-block;font-size:9px;letter-spacing:2px;color:var(--gold);border:1px solid var(--border2);padding:2px 8px;border-radius:10px;margin-right:8px;margin-bottom:3px;white-space:nowrap;}
-.det-body{color:var(--ink2);}
-.per-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;gap:8px;}
+.det-lbl{display:block;font-size:12px;letter-spacing:2px;color:var(--gold);opacity:.7;margin-bottom:5px;}
+.det-body{color:var(--white2);}
+
+/* 期間 */
+.per-row{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line2);gap:12px;}
 .per-row:last-child{border-bottom:none;}
-.per-type{font-size:11px;color:var(--gold);letter-spacing:1px;flex-shrink:0;padding-top:1px;}
-.per-val{color:var(--ink2);text-align:right;line-height:1.6;}
-.per-val.alert{color:var(--red);}
-.per-note{font-size:11px;color:var(--ink2);opacity:.5;margin-top:12px;line-height:1.7;text-align:center;}
-.types-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.t-chip{border-radius:8px;padding:12px 14px;background:#faf8f4;border:1px solid var(--border);}
-.t-chip.mine{background:linear-gradient(135deg,#f5f0e8,#ede4d0);border-color:var(--gold2);box-shadow:0 2px 8px rgba(140,109,63,0.1);}
-.t-chip-name{font-size:13px;font-weight:500;margin-bottom:2px;color:var(--ink2);}
-.t-chip.mine .t-chip-name{color:var(--accent);}
-.t-chip-dir{font-size:9px;color:var(--gold);letter-spacing:1px;opacity:.7;}
-.t-chip-desc{font-size:10px;color:var(--ink2);opacity:.6;margin-top:3px;line-height:1.5;}
-.t-chip.mine .t-chip-desc{opacity:.85;}
-.cta-lead{font-size:13px;color:var(--ink2);line-height:1.9;margin-bottom:16px;}
-.cta-note{font-size:11px;color:var(--ink2);opacity:.5;line-height:1.8;margin-bottom:4px;}
-.btn-cta{display:block;padding:13px 18px;border-radius:8px;font-family:inherit;font-size:13px;letter-spacing:1px;text-decoration:none;cursor:pointer;border:none;margin-bottom:10px;text-align:center;}
-.btn-cta:active{opacity:.8;}
-.c-pri{background:var(--accent);color:var(--gold3);}
-.c-coming{background:#f2f0ec;border:1px solid #ddd;color:#aaa;font-size:12px;cursor:default;}
-.note-tag{display:inline-block;font-size:9px;background:#e0dbd2;color:#888;padding:1px 6px;border-radius:3px;margin-left:6px;letter-spacing:1px;vertical-align:middle;}
-.footer{text-align:center;padding:28px 20px 40px;background:var(--accent);}
-.footer-ttl{font-size:13px;color:var(--gold3);letter-spacing:1px;margin-bottom:8px;line-height:1.7;}
-.footer-sub{font-size:10px;color:rgba(232,213,160,0.4);letter-spacing:2px;}
-@media(max-width:380px){
-  .t-name{font-size:25px;}
-  .date-input{width:62px;font-size:18px;}
-  .date-input.yr{width:78px;}
+.per-type{font-size:13px;color:var(--white3);letter-spacing:1px;flex-shrink:0;padding-top:1px;}
+.per-val{font-size:15px;color:var(--white2);text-align:right;line-height:1.7;}
+.per-val.alert{color:#f09090;}
+.per-note{font-size:13px;color:var(--white3);margin-top:14px;line-height:1.8;letter-spacing:.5px;}
+
+/* 6タイプ */
+.types-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);}
+.t-chip{padding:14px 16px;background:var(--bg);border:none;}
+.t-chip.mine{background:rgba(200,169,110,0.07);}
+.t-chip-name{font-size:16px;font-weight:300;margin-bottom:3px;color:var(--white2);}
+.t-chip.mine .t-chip-name{color:var(--white);}
+.t-chip-dir{font-size:12px;color:var(--white3);letter-spacing:1px;margin-bottom:3px;}
+.t-chip.mine .t-chip-dir{color:var(--gold);}
+.t-chip-desc{font-size:13px;color:var(--white3);line-height:1.5;}
+.t-chip.mine .t-chip-desc{color:var(--white2);}
+
+/* CTA */
+.cta-body{font-size:15px;color:var(--white2);line-height:1.9;margin-bottom:20px;}
+.btn-cta{display:block;padding:15px 0;border-radius:3px;font-family:inherit;font-size:15px;font-weight:300;letter-spacing:2px;text-decoration:none;cursor:pointer;border:none;margin-bottom:10px;text-align:center;transition:opacity .2s;}
+.btn-cta:active{opacity:.7;}
+.c-line{background:transparent;border:1px solid var(--gold2);color:var(--gold);}
+.c-coming{background:transparent;border:1px solid var(--line);color:var(--white3);cursor:default;font-size:14px;}
+.ntag{display:inline-block;font-size:12px;border:1px solid var(--line);color:var(--white3);padding:1px 6px;border-radius:2px;margin-left:6px;letter-spacing:1px;vertical-align:middle;}
+.cta-small{font-size:13px;color:var(--white3);text-align:center;letter-spacing:.5px;line-height:1.7;}
+
+/* フッター */
+.ft{padding:32px 28px 48px;border-top:1px solid var(--line);}
+.ft-ttl{font-size:17px;font-weight:300;color:var(--white);letter-spacing:2px;margin-bottom:8px;line-height:1.7;}
+.ft-sub{font-size:13px;color:var(--white3);letter-spacing:3px;}
+
+@media(max-width:360px){
+  .t-name{font-size:27px;}
+  .date-in{width:62px;font-size:19px;}
+  .date-in.yr{width:82px;}
   .types-grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap">
 
-<div class="site-header">
-  <div class="header-tag">hossoiossan ナナフシ の</div>
+<header class="hd">
+  <div class="hd-tag">㐂の暦</div>
   <div class="yy-wrap">
     <div class="yy"><div class="yy-dot-w"></div><div class="yy-dot-b"></div></div>
   </div>
-  <div class="site-ttl">&#x3402;びの暦｜天中殺版</div>
-  <div class="site-sub">KICHI NO KOYOMI</div>
-</div>
+  <div class="hd-ttl"><em>&#x3402;</em>の暦｜天中殺</div>
+</header>
 
-<div class="koyomi-banner">
-  <div class="koyomi-date" id="k-date"></div>
-  <div class="koyomi-kanshi" id="k-kanshi"></div>
-  <div class="koyomi-gogyo" id="k-gogyo"></div>
-  <div class="koyomi-alert" id="k-alert" style="display:none;"></div>
-</div>
+<section class="koyomi">
+  <div class="k-date" id="k-date"></div>
+  <div class="k-kanshi" id="k-kanshi"></div>
+  <div class="k-gogyo" id="k-gogyo"></div>
+  <div id="k-alert"></div>
+</section>
 
-<div class="section">
-  <div class="input-lead">
-    <p>生年月日を入れるだけ</p>
+<section class="form-sec">
+  <div class="form-lead">
+    <p>生年月日</p>
     <small>あなたの天中殺タイプが分かります</small>
   </div>
   <div class="date-row">
     <div class="date-field">
-      <input class="date-input yr" id="inp-y" type="number" min="1900" max="2100" placeholder="西暦">
+      <input class="date-in yr" id="inp-y" type="number" min="1900" max="2100" placeholder="西暦">
       <span class="date-lbl">年</span>
     </div>
     <div class="date-field">
-      <input class="date-input" id="inp-m" type="number" min="1" max="12" placeholder="月">
+      <input class="date-in" id="inp-m" type="number" min="1" max="12" placeholder="月">
       <span class="date-lbl">月</span>
     </div>
     <div class="date-field">
-      <input class="date-input" id="inp-d" type="number" min="1" max="31" placeholder="日">
+      <input class="date-in" id="inp-d" type="number" min="1" max="31" placeholder="日">
       <span class="date-lbl">日</span>
     </div>
   </div>
-  <button class="btn-calc" id="btn-calc">タイプを調べる</button>
-  <div class="error" id="err"></div>
-</div>
+  <button class="btn-go" id="btn-calc">タイプを調べる</button>
+  <div class="err" id="err"></div>
+</section>
 
-<div class="result-area" id="result">
+<div class="result" id="result">
 
-  <div class="type-hero">
+  <section class="type-hero">
     <div class="t-micro">YOUR TENCHU TYPE</div>
     <div class="t-name" id="res-name">—</div>
-    <div class="t-dir-badge" id="res-dir">—</div>
+    <div class="t-dir" id="res-dir">—</div>
     <div class="t-mis" id="res-mis">—</div>
-  </div>
+  </section>
 
-  <div class="share-wrap">
+  <div class="copy-sec">
     <button class="btn-copy" id="btn-copy">結果をコピーしてシェア</button>
     <div class="copy-done" id="copy-done"></div>
   </div>
 
-  <div class="section">
-    <div class="sec-label">TODAY</div>
+  <section class="sec">
+    <div class="sec-ttl">TODAY</div>
     <div class="st-box" id="st-box">
-      <div class="st-head">今日のあなたの状態</div>
+      <div class="st-lbl">今日のあなたの状態</div>
       <div class="st-main" id="st-main">—</div>
       <div class="st-note" id="st-note">—</div>
     </div>
-  </div>
+  </section>
 
-  <div class="section">
-    <div class="sec-label">このタイプの本質</div>
+  <section class="sec">
+    <div class="sec-ttl">このタイプの本質</div>
     <div id="detail-content"></div>
-  </div>
+  </section>
 
-  <div class="section">
-    <div class="sec-label">直近の天中殺期間</div>
+  <section class="sec">
+    <div class="sec-ttl">直近の天中殺期間</div>
     <div class="per-row"><span class="per-type">年天中殺</span><span class="per-val" id="y-period">—</span></div>
     <div class="per-row"><span class="per-type">月天中殺</span><span class="per-val" id="m-period">—</span></div>
     <div class="per-row"><span class="per-type">日天中殺（直近）</span><span class="per-val" id="d-period">—</span></div>
-    <p class="per-note">天中殺は「整える時期」<br>凶ではなく、次のステージへエネルギーをチャージする期間</p>
-  </div>
+    <p class="per-note">天中殺は「整える時期」。凶ではなく、次のステージへエネルギーをチャージする期間</p>
+  </section>
 
-  <div class="section">
-    <div class="sec-label">6つの天中殺タイプ</div>
-    <div class="types-grid" id="types-grid"></div>
-  </div>
+  <section class="sec" style="padding-bottom:0;">
+    <div class="sec-ttl">6つの天中殺タイプ</div>
+  </section>
+  <div class="types-grid" id="types-grid"></div>
 
-  <div class="section">
-    <div class="sec-label">もっと詳しく知りたい方へ</div>
-    <p class="cta-lead">天中殺は、それだけで一つの占術として成立するほど精度の高い概念です（六星占術はこの天中殺を軸にした占いです）。<br><br>本来は命式全体の中で読むことで、さらに深く自分のリズムが分かります。</p>
-    <a href="https://lin.ee/XXXXXXX" target="_blank" class="btn-cta c-pri">詳しい鑑定はLINEのDMから →</a>
-    <div class="btn-cta c-coming">天中殺 note<span class="note-tag">近日公開</span></div>
-    <div class="btn-cta c-coming">@hossoiossan 占い専門アカウント<span class="note-tag">準備中</span></div>
-    <p class="cta-note">※占いインスタ 3,000人達成後に公開予定</p>
-  </div>
+  <section class="sec">
+    <div class="sec-ttl">もっと詳しく知りたい方へ</div>
+    <p class="cta-body">天中殺は、それだけで一つの占術として成立するほど精度の高い概念です。<br><br>本来は命式全体の中で読むことで、さらに深く自分のリズムが分かります。</p>
+    <a href="https://lin.ee/QP29CF8" target="_blank" class="btn-cta c-line">詳しい鑑定はLINEのDMから →</a>
+    <div class="btn-cta c-coming">天中殺 note<span class="ntag">近日公開</span></div>
+    <div class="btn-cta c-coming">@hossoiossan 占い専門アカウント<span class="ntag">準備中</span></div>
+    <p class="cta-small" style="margin-top:4px;">占いインスタ 3,000人達成後に公開予定</p>
+  </section>
 
 </div>
 
-<div class="footer">
-  <div class="footer-ttl">宿命を識り&#x3402;びの人生へ</div>
-  <div class="footer-sub">@hossoiossan　ナナフシ &#x3402;</div>
-</div>
+<footer class="ft">
+  <div class="ft-ttl">宿命を識り&#x3402;びの人生へ</div>
+  <div class="ft-sub">@hossoiossan　ナナフシ &#x3402;</div>
+</footer>
 
 </div>
 <script>
@@ -250,12 +296,54 @@ function branchGogyo(s){
 }
 
 var TD={
-  "戌亥":{name:"戌亥天中殺",dir:"北西",mis:"精神性を高める使命",br:["戌","亥"],ess:"精神性を高める使命",fam:"家系の精神性を継承する宿命。精神的な積み上げが次の世代に伝わる",imp:"形のないもの・精神世界・哲学・宗教・芸術に向かう時に才能が開く"},
-  "申酉":{name:"申酉天中殺",dir:"西方",mis:"伝統と革新を繋ぐ使命",br:["申","酉"],ess:"伝統と革新を繋ぐ使命",fam:"伝統と新しい時代をつなぐ立場。家系の中で橋の役割を担う",imp:"古いものを学び、それを新しい形に変えて伝える時に力を発揮する"},
-  "午未":{name:"午未天中殺",dir:"南方",mis:"流れを断ち切る使命",br:["午","未"],ess:"流れを断ち切る使命",fam:"古い流れを断ち切って新しく始める宿命。家系の転換点になる人",imp:"過去のしがらみを断ち切り、自分だけの独自路線を進む時に輝く"},
-  "辰巳":{name:"辰巳天中殺",dir:"南東",mis:"人と違う道を行く使命",br:["辰","巳"],ess:"人と違う道を行く使命",fam:"既存の枠に収まらない宿命。変わってると言われるのは才能の証",imp:"独自の哲学・専門性を深めるほど、他の追随を許さない存在になれる"},
-  "寅卯":{name:"寅卯天中殺",dir:"東方",mis:"引き継ぎ・継承の使命",br:["寅","卯"],ess:"引き継ぎ・継承の使命",fam:"父親・先代との縁が深い。二代運・三代運として既存のものを発展させる",imp:"狭く深い人間関係・丁寧さ・几帳面さ・精神性を高める学びの中で活きる"},
-  "子丑":{name:"子丑天中殺",dir:"北方",mis:"何かを始める使命",br:["子","丑"],ess:"何かを始める使命",fam:"家系の新しい流れを作る立場。ゼロから何かを立ち上げる宿命を持つ",imp:"前例のないこと・ゼロから立ち上げる仕事の中で、真骨頂が現れる"}
+  "戌亥":{name:"戌亥天中殺",dir:"北西",br:["戌","亥"],
+    mis:"6タイプの中で最もパワフルで独立心が強い。精神世界・哲学・霊感・芸術に縁が深い「開祖運」",
+    rows:[
+      {lbl:"性格",body:"目に見えないものに価値を置く。宗教家・哲学者・芸術家に多く、物質より精神を優先するタイプ。カリスマ度と変人度は6タイプ中最高"},
+      {lbl:"家系の立場",body:"家系の「初代」になれる宿命。先人のいない道を精神力だけで開いていく。親に頼れない分、自力で宿命を切り拓く"},
+      {lbl:"陽転の形",body:"精神世界・哲学・芸術など形のないものを深めるほど運気が上がる。物質への執着を手放した時に本領を発揮する"},
+      {lbl:"陰転の形",body:"現実欲・お金への執着が強くなると波が乱れやすい。「もっと、もっと」という方向に動くと枠の外に落ちる"}
+    ]},
+  "申酉":{name:"申酉天中殺",dir:"西方",br:["申","酉"],
+    mis:"組織適性が6タイプ中最高。友人運・横のつながりが強く、伝統と革新の橋渡し役を担う「継承運」",
+    rows:[
+      {lbl:"性格",body:"個性的でカリスマ性が出やすいが、人と歩調が合わないことも多い。革新的でありながら古いものの価値も知っている"},
+      {lbl:"家系の立場",body:"古いものを壊して新しいものを作る役割。伝統と新しい時代をつなぐ「橋」の立場。横の人間関係で運が動く"},
+      {lbl:"陽転の形",body:"歴史・伝統・文化を学びながら、それを現代に翻訳する仕事が向く。友人・仲間との協力で力が増す。晩年ほど安定する"},
+      {lbl:"陰転の形",body:"一人でゼロから立ち上げようとすると力が分散する。縦（上下）より横（対等）のつながりを優先することが鍵"}
+    ]},
+  "午未":{name:"午未天中殺",dir:"南方",br:["午","未"],
+    mis:"目上運が6タイプ中最高。親・上司からの引き立てを受けやすい。古い流れを断ち切る「末代運」",
+    rows:[
+      {lbl:"性格",body:"繊細さが6タイプ中最高。感受性が豊かで、家庭・愛情・基盤づくりに強いテーマを持つ。感情の波と向き合うことが課題"},
+      {lbl:"家系の立場",body:"家系の「末代」になりやすい宿命。古い流れを自分の代で断ち切り、次の展開を作る転換点の立場"},
+      {lbl:"陽転の形",body:"目上・親・師匠との縁を大切にするほど運が開く。上からの引き立てを受けやすいタイプ。家庭基盤を整えることが運気の土台になる"},
+      {lbl:"陰転の形",body:"古い環境・人間関係にしがみつくと運気が停滞する。思い切って手放す決断ができると次のステージが開く"}
+    ]},
+  "辰巳":{name:"辰巳天中殺",dir:"南東",br:["辰","巳"],
+    mis:"現実主義・独立向きで、人と違う道を歩む宿命。「はみ出し運」とも呼ばれる個性の強いタイプ",
+    rows:[
+      {lbl:"性格",body:"変人度・革新的度が6タイプ中最高。既成概念の外側に才能がある。「変わってる」と言われることが多いが、それが本来の宿命"},
+      {lbl:"家系の立場",body:"親に頼れない宿命を持つタイプの一つ。家系の枠を外れて独自の道を切り拓く立場。社会・組織のテーマが重い"},
+      {lbl:"陽転の形",body:"専門性・独自の哲学・ニッチな領域を深掘りするほど代替のきかない存在になる。一対多より一対一の深い関係で才能が開く"},
+      {lbl:"陰転の形",body:"組織の論理・周囲の常識に合わせようとすると疲弊する。自分にしかない視点や専門性を磨く方向に舵を切ることが鍵"}
+    ]},
+  "寅卯":{name:"寅卯天中殺",dir:"東方",br:["寅","卯"],
+    mis:"継承向き度・1→10力が6タイプ中最高。運気の波が激しく、父親運・配偶者運が強い「跡取り運」",
+    rows:[
+      {lbl:"性格",body:"誰かが作ったものを引き継いで発展させることが得意。新しい人間関係より古いお付き合いを大事にする。勝負事・一か八かに強い"},
+      {lbl:"家系の立場",body:"父親との縁が深く、二代目・三代目として力を発揮する宿命。家庭を守る意識が強く、配偶者運が良い。兄弟姉妹・母親とは距離ができやすい"},
+      {lbl:"陽転の形",body:"狭く深い人間関係・丁寧な仕事・精神を高める学びの中で本来の力が出る。ゼロから立ち上げるより、既存のものを育てる場所に身を置くのが正解"},
+      {lbl:"陰転の形",body:"新しい環境・新しい人間関係への急な転換は運気を乱す。母親・兄弟姉妹への過度な依存もリスク。落ち着いてゆっくり考えることができる環境が大切"}
+    ]},
+  "子丑":{name:"子丑天中殺",dir:"北方",br:["子","丑"],
+    mis:"0→1力・下目運が6タイプ中最高。大器晩成で、ゼロから何かを始める「初代運」",
+    rows:[
+      {lbl:"性格",body:"個性が突き抜ける。「自分らしさ」を貫くと運が開く一匹狼タイプ。親に頼れない宿命を持ち、自力で道を切り拓く"},
+      {lbl:"家系の立場",body:"家系に新しい流れを作る「初代」の立場。先人のいない道を行く。目下・部下・後輩との縁が強く、人を育てることで力が増す"},
+      {lbl:"陽転の形",body:"前例のない挑戦・ゼロから立ち上げる仕事の中で誰にも真似できない力が出る。大器晩成タイプなので、早期の結果より長期の積み上げが本来の形"},
+      {lbl:"陰転の形",body:"組織の中で自分を曲げて合わせようとすると力が出ない。人の後を追う・継承するスタイルより、自分が「一番手」になれる場所を選ぶことが鍵"}
+    ]}
 };
 
 var TODAY_K,TODAY_Y,TODAY_M,TODAY_D;
@@ -274,14 +362,9 @@ var TODAY_K,TODAY_Y,TODAY_M,TODAY_D;
   var hits=(go.indexOf(TODAY_K.yshi)>=0?1:0)+(go.indexOf(TODAY_K.mshi)>=0?1:0)+(go.indexOf(TODAY_K.dshi)>=0?1:0);
   var al=document.getElementById('k-alert');
   if(hits>=3){
-    al.style.display="block";
-    al.textContent="午未天中殺の方へ：今日はトリプル天冲殺です。大きな決断・新規事業・契約は避け、内側を整える日にしてください";
+    al.innerHTML="<div class='k-alert triple'><div class='k-alert-head'>午未天中殺の方へ</div><div class='k-alert-body'>今日は年・月・日の天中殺が重なったトリプル天冲殺。大きな決断・新規事業・契約は避け、内側を整えるのに最適な日です</div></div>";
   }else if(hits===2){
-    al.style.display="block";
-    al.style.background="rgba(100,70,10,0.4)";
-    al.style.borderColor="rgba(180,130,40,0.35)";
-    al.style.color="#f0dea0";
-    al.textContent="午未天中殺の方へ：今日はダブル天冲殺です。重要な決断は慎重に";
+    al.innerHTML="<div class='k-alert double'><div class='k-alert-head'>午未天中殺の方へ</div><div class='k-alert-body'>今日はダブル天冲殺です。重要な決断は慎重に</div></div>";
   }
 })();
 
@@ -334,17 +417,18 @@ document.getElementById('btn-calc').addEventListener('click',function(){
   }else if(yH){
     box.classList.add("tenchu");mEl.className="st-main caution";
     mEl.textContent="今年は年天中殺";
-    nEl.textContent="今年はあなたの天中殺年です。拡大より整理・内側を深める年。種まきしておくと天中殺明けに花開きます。";
+    nEl.textContent="今年はあなたの天中殺年です。拡大より整理・内側を深める年。";
   }else{
     box.classList.add("normal");mEl.className="st-main ok";
-    mEl.textContent="今日は通常運";
-    nEl.textContent="今日はあなたの天中殺と重なる干支はありません。動くなら今日がチャンスです。";
+    mEl.textContent="今日は天中殺ではありません";
+    nEl.textContent="今日はあなたの天中殺の支と重なる干支はありません。";
   }
 
-  document.getElementById('detail-content').innerHTML=
-    "<div class='det-row'><span class='det-lbl'>本質</span><span class='det-body'>"+t.ess+"</span></div>"+
-    "<div class='det-row'><span class='det-lbl'>家系の縁</span><span class='det-body'>"+t.fam+"</span></div>"+
-    "<div class='det-row'><span class='det-lbl'>活かし方</span><span class='det-body'>"+t.imp+"</span></div>";
+  var detHtml="";
+  for(var ri=0;ri<t.rows.length;ri++){
+    detHtml+="<div class='det-row'><span class='det-lbl'>"+t.rows[ri].lbl+"</span><span class='det-body'>"+t.rows[ri].body+"</span></div>";
+  }
+  document.getElementById('detail-content').innerHTML=detHtml;
 
   var b1=t.br[0],b2=t.br[1];
   var yEl=document.getElementById('y-period');
@@ -390,7 +474,7 @@ document.getElementById('btn-calc').addEventListener('click',function(){
       if(hits2.length>=3)break;
     }
   }
-  dEl.textContent=hits2.length>0?hits2.join("  "):"—";
+  dEl.textContent=hits2.length>0?hits2.join("　"):"—";
 
   var order=["戌亥","申酉","午未","辰巳","寅卯","子丑"],html2="";
   for(var ti=0;ti<order.length;ti++){
@@ -410,21 +494,18 @@ document.getElementById('btn-copy').addEventListener('click',function(){
   var r=window._myResult;
   if(!r)return;
   var lines=[
-    "【㐂びの暦｜天中殺タイプ診断】",
+    "【㐂の暦・天中殺】",
     "",
     "私のタイプは「"+r.name+"」（"+r.dir+"）",
     r.mis,
-    "",
-    "本質："+r.ess,
-    "活かし方："+r.imp,
     "",
     "宿命を識り㐂びの人生へ",
     "https://nanafushi-tenchu-quick.vercel.app/"
   ];
   navigator.clipboard.writeText(lines.join("\n")).then(function(){
     var el=document.getElementById('copy-done');
-    el.textContent="コピーしました　SNSに貼り付けてどうぞ";
-    setTimeout(function(){el.textContent="";},4000);
+    el.textContent="コピーしました";
+    setTimeout(function(){el.textContent="";},3000);
   }).catch(function(){
     document.getElementById('copy-done').textContent="コピーできませんでした";
   });
