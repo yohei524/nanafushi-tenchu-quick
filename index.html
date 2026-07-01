@@ -97,8 +97,8 @@ body{font-family:"Noto Serif JP","YuMincho","Hiragino Mincho ProN",serif;backgro
 
 /* LINE簡易ボタン(コンパクト・フォーム直後) */
 .line-simple-wrap{padding:0 28px 18px;}
-.line-simple-hint{font-size:12px;color:var(--white3);text-align:center;letter-spacing:1px;margin-bottom:8px;line-height:1.6;}
-.line-simple-btn{display:block;padding:12px 0;background:#06C755;color:#fff;border-radius:4px;text-align:center;font-size:14px;font-weight:400;letter-spacing:3px;text-decoration:none;transition:opacity .2s;box-shadow:0 2px 8px rgba(6,199,85,0.2);}
+.line-simple-hint{font-size:14px;color:var(--white2);text-align:center;letter-spacing:1px;margin-bottom:10px;line-height:1.7;}
+.line-simple-btn{display:block;padding:14px 0;background:#06C755;color:#fff;border-radius:4px;text-align:center;font-size:15px;font-weight:500;letter-spacing:3px;text-decoration:none;transition:opacity .2s;box-shadow:0 2px 8px rgba(6,199,85,0.3);}
 .line-simple-btn:active{opacity:.7;}
 .line-simple-btn:hover{opacity:.9;}
 
@@ -301,10 +301,12 @@ body{font-family:"Noto Serif JP","YuMincho","Hiragino Mincho ProN",serif;backgro
   <section class="sec">
     <div class="sec-ttl">もっと詳しく知りたい方へ</div>
     <p class="cta-body">天中殺は、それだけで一つの占術として成立するほど精度の高い概念です。<br><br>本来は命式全体の中で読むことで、さらに深く自分のリズムが分かります。</p>
-    <a href="https://lin.ee/QP29CF8" target="_blank" class="btn-cta c-line">詳しい鑑定はLINEのDMから →</a>
-    <div class="btn-cta c-coming">天中殺 note<span class="ntag">近日公開</span></div>
-    <div class="btn-cta c-coming">@hossoiossan 占い専門アカウント<span class="ntag">準備中</span></div>
-    <p class="cta-small" style="margin-top:4px;">占いインスタ 3,000人達成後に公開予定</p>
+    <a href="https://lin.ee/9gPcJRI" target="_blank" rel="noopener" class="line-simple-btn" style="margin-bottom:12px;">LINEで診断サイトを見る</a>
+    <p class="cta-body" style="text-align:center;font-size:13px;margin-top:16px;">
+      <span style="color:var(--white2);">📝 天中殺 note</span> <span style="color:var(--white3);font-size:12px;">近日公開</span><br>
+      <span style="color:var(--white2);">📷 @hossoiossan 占い専門アカウント</span> <span style="color:var(--white3);font-size:12px;">準備中</span><br>
+      <span style="color:var(--white3);font-size:12px;">(占いインスタ 3,000人達成後に公開予定)</span>
+    </p>
   </section>
 
 </div>
@@ -429,19 +431,20 @@ var TODAY_K,TODAY_Y,TODAY_M,TODAY_D;
 })();
 
 // 12段階旅メタファー(天中殺の2支を基準に十二支順で割り振る)
+// hint は「12日サイクル中の相対値」であることを前提とした短い一言
 var TRAVEL_STAGES=[
-  {emoji:"🧳",name:"荷造り",sub:"準備",hint:"次の一歩の準備を整える日。焦らず整理を"},
-  {emoji:"🚶",name:"旅の出発",sub:"移動",hint:"動き出しに向いた日。小さな一歩を踏み出す"},
-  {emoji:"🌅",name:"目的地到着",sub:"成功",hint:"形になる日。成果が見える瞬間"},
-  {emoji:"⏳",name:"休憩",sub:"ブレーキ",hint:"少し立ち止まる日。無理せず様子を見る"},
-  {emoji:"🎉",name:"旅のハイライト",sub:"最高の瞬間",hint:"エネルギー最大の日。大きく動くのに向く"},
-  {emoji:"🌪️",name:"道中のトラブル",sub:"試練",hint:"想定外が来やすい日。落ち着いて対応"},
-  {emoji:"🛤️",name:"ルート変更",sub:"選択の時",hint:"分かれ道の日。方向を選び直す"},
+  {emoji:"🧳",name:"荷造り",sub:"準備",hint:"12日サイクルの入口。次に向けての準備・整理に向く日"},
+  {emoji:"🚶",name:"旅の出発",sub:"移動",hint:"サイクルの2日目。小さな一歩を踏み出すのに向く"},
+  {emoji:"🌅",name:"目的地到着",sub:"成功",hint:"12日中でも形になりやすい日。成果が見える瞬間"},
+  {emoji:"⏳",name:"休憩",sub:"ブレーキ",hint:"一旦立ち止まる日。無理せず様子を見る"},
+  {emoji:"🎉",name:"旅のハイライト",sub:"最高の瞬間",hint:"12日サイクル中もっとも運気が高い日。動くなら今日"},
+  {emoji:"🌪️",name:"道中のトラブル",sub:"試練",hint:"想定外が起きやすい日。落ち着いて対応"},
+  {emoji:"🛤️",name:"ルート変更",sub:"選択の時",hint:"分かれ道の日。方向を選び直すタイミング"},
   {emoji:"🛍️",name:"お土産購入",sub:"収穫",hint:"手元にモノや形が残る日"},
-  {emoji:"🏠",name:"帰路につく",sub:"次の準備",hint:"一区切りをつけ、次に備える日"},
+  {emoji:"🏠",name:"帰路につく",sub:"次の準備",hint:"一区切りをつけ、次のサイクルへ備える日"},
   {emoji:"🛌",name:"休息",sub:"充電期間",hint:"体と心を休める日"},
-  {emoji:"🚧",name:"旅の終わり",sub:"低迷期",hint:"日天中殺。大きな決断は避け、内省に"},
-  {emoji:"🔄",name:"次の旅の計画",sub:"再スタート",hint:"日天中殺。次のサイクルを構想する時期"}
+  {emoji:"🚧",name:"旅の終わり",sub:"低迷期",hint:"日天中殺。12日サイクルの最も静かな日。大きな決断は避ける"},
+  {emoji:"🔄",name:"次の旅の計画",sub:"再スタート",hint:"日天中殺。次のサイクルを構想する日"}
 ];
 var BRANCH_ORDER=["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
 
@@ -476,10 +479,27 @@ function updateKoyomiBlock(tenchuKey,animate){
   var hits=(yH?1:0)+(mH?1:0)+(dH?1:0);
   var al=document.getElementById('k-alert');
   al.innerHTML="";
+  // どのレイヤーで天中殺が重なっているかを明示する
+  // ダブル/トリプル判定は「今日」の話ではなく「今この期間」の重なりを説明する
+  var layerLabels=[];
+  if(yH)layerLabels.push("年");
+  if(mH)layerLabels.push("月");
+  if(dH)layerLabels.push("日");
+  var yearRange=TODAY_Y+"年〜"+(TODAY_Y+1)+"年";  // 年天中殺は概算(正確には節入りで前後する)
+  var monthLabel=TODAY_Y+"年"+TODAY_M+"月";
   if(hits>=3){
-    al.innerHTML="<div class='k-alert triple'><div class='k-alert-head'>"+t.name+"の方へ</div><div class='k-alert-body'>今日は年・月・日の天中殺が重なったトリプル天冲殺。大きな決断・新規事業・契約は避け、内側を整えるのに最適な日です</div></div>";
+    al.innerHTML="<div class='k-alert triple'><div class='k-alert-head'>"+t.name+"の方へ</div><div class='k-alert-body'>今 年・月・日の天中殺が重なっているトリプル期間です<br>大きな決断・新規事業・契約はこの期間を避け、内側を整えるのに最適</div></div>";
   }else if(hits===2){
-    al.innerHTML="<div class='k-alert double'><div class='k-alert-head'>"+t.name+"の方へ</div><div class='k-alert-body'>今日はダブル天冲殺です。重要な決断は慎重に</div></div>";
+    // 何と何が重なってるかを明示
+    var pair="";
+    if(yH&&mH)pair=yearRange+" と "+monthLabel+" が年+月のダブル天中殺";
+    else if(yH&&dH)pair=yearRange+" の年天中殺と、今日が日天中殺の重なり";
+    else if(mH&&dH)pair=monthLabel+" の月天中殺と、今日が日天中殺の重なり";
+    al.innerHTML="<div class='k-alert double'><div class='k-alert-head'>"+t.name+"の方へ</div><div class='k-alert-body'>"+pair+"<br>大きな決断は期間明けに。今は整える時間として使う</div></div>";
+  }else if(yH){
+    al.innerHTML="<div class='k-alert double'><div class='k-alert-head'>"+t.name+"の方へ</div><div class='k-alert-body'>"+yearRange+" は年天中殺の期間中<br>新しく大きく始めるより、今あるものを整えるのが向く2年</div></div>";
+  }else if(mH){
+    al.innerHTML="<div class='k-alert double'><div class='k-alert-head'>"+t.name+"の方へ</div><div class='k-alert-body'>"+monthLabel+" は月天中殺<br>大きな判断は来月以降に。今月はコツコツ準備に</div></div>";
   }
   // 12段階旅フロー
   var stg=getTravelStage(t.br,TODAY_K.dshi);
@@ -489,7 +509,16 @@ function updateKoyomiBlock(tenchuKey,animate){
   var stageNum=TRAVEL_STAGES.indexOf(stg)+1;
   var isTenchuDay=(stageNum===11||stageNum===12);
   stageEl.innerHTML="<span class='k-flow-num'>"+stageNum+"</span>"+stg.emoji+" "+stg.name+"("+stg.sub+")"+(isTenchuDay?"<span class='k-flow-tag'>日天中殺</span>":"");
-  hintEl.textContent=stg.hint;
+  // 年/月天中殺と重なってる場合の追加注意文
+  var extraNote="";
+  if(yH&&mH){
+    extraNote="<br><span style='color:#f0a0a0;'>※ただし今は年+月のダブル天中殺期間。日運が良くても大きな決断は避けるのが吉</span>";
+  }else if(yH){
+    extraNote="<br><span style='color:#f0a0a0;'>※ただし今は年天中殺期間中。日運は使えるが、人生を左右する決断はこの2年を避ける</span>";
+  }else if(mH){
+    extraNote="<br><span style='color:#f0a0a0;'>※ただし今月は月天中殺。日運は使えるが、月をまたぐ大きな判断は来月以降に</span>";
+  }
+  hintEl.innerHTML=stg.hint+extraNote;
   flowBox.style.display="block";
 
   // カード画像設定
@@ -592,30 +621,37 @@ document.getElementById('btn-calc').addEventListener('click',function(){
   var dH=t.br.indexOf(TODAY_K.dshi)>=0;
   var hit=(yH?1:0)+(mH?1:0)+(dH?1:0);
   box.className="st-box";
-  if(hit>=3){
-    box.classList.add("triple");mEl.className="st-main alert";
-    mEl.textContent="今日はトリプル天冲殺";
-    nEl.textContent="年・月・日すべてにあなたの天中殺の支が重なっています。大きな決断・新規事業・契約はこの期間を避け、内省と準備に充ててください。";
-  }else if(hit===2){
-    box.classList.add("triple");mEl.className="st-main alert";
-    mEl.textContent="ダブル天冲殺";
-    nEl.textContent="重要な決断は期間明けに。今は準備と内省に使うのが吉です。";
-  }else if(dH){
+  // 日運(今日そのもの)を主軸に表示・その上でどの期間の天中殺と重なっているかを分けて説明
+  var todayStg=getTravelStage(t.br,TODAY_K.dshi);
+  var todayStgNum=TRAVEL_STAGES.indexOf(todayStg)+1;
+  var dayHint=todayStg.emoji+" 12日サイクル中の "+todayStgNum+"番目「"+todayStg.name+"」";
+  if(dH){
+    // 日天中殺の日(段階11-12)
     box.classList.add("tenchu");mEl.className="st-main caution";
     mEl.textContent="今日は日天中殺";
-    nEl.textContent="今日の日支はあなたの天中殺の支です。重要な決断は明日以降に。内側を整える日に向いています。";
-  }else if(mH){
+    var note="12日サイクルの中で最も静かな位置にいる日。大きな決断は明日以降に。内側を整える日に向く";
+    if(yH&&mH)note+="<br><span style='color:#f0a0a0;'>※さらに 年+月 の天中殺期間中でもあります。今はトリプル状態</span>";
+    else if(yH)note+="<br><span style='color:#f0a0a0;'>※年天中殺("+TODAY_Y+"〜"+(TODAY_Y+1)+"年)期間中でもあります</span>";
+    else if(mH)note+="<br><span style='color:#f0a0a0;'>※月天中殺("+TODAY_Y+"年"+TODAY_M+"月)期間中でもあります</span>";
+    nEl.innerHTML=note;
+  }else if(yH||mH){
+    // 日運は普通(天中殺日ではない)、でも年or月天中殺の期間中
     box.classList.add("tenchu");mEl.className="st-main caution";
-    mEl.textContent="今月は月天中殺";
-    nEl.textContent="今月はあなたの天中殺月です。大きな判断は来月以降に。コツコツ準備する時間として使いましょう。";
-  }else if(yH){
-    box.classList.add("tenchu");mEl.className="st-main caution";
-    mEl.textContent="今年は年天中殺";
-    nEl.textContent="今年はあなたの天中殺年です。拡大より整理・内側を深める年。";
+    if(yH&&mH){
+      mEl.textContent="日運は動ける・でもダブル天中殺期間中";
+      nEl.innerHTML=dayHint+"。日運は使えるが、"+TODAY_Y+"年〜"+(TODAY_Y+1)+"年の年天中殺と "+TODAY_Y+"年"+TODAY_M+"月の月天中殺が重なっている期間。<br>日々の細かい動きはOK、人生を左右する大きな決断はこの期間を避ける";
+    }else if(yH){
+      mEl.textContent="日運は動ける・でも年天中殺期間中";
+      nEl.innerHTML=dayHint+"。日運は使えるが、"+TODAY_Y+"年〜"+(TODAY_Y+1)+"年は年天中殺の2年間。<br>拡大より整える・手放す方向で動くと後で効いてくる";
+    }else{
+      mEl.textContent="日運は動ける・でも月天中殺期間中";
+      nEl.innerHTML=dayHint+"。日運は使えるが、"+TODAY_Y+"年"+TODAY_M+"月は月天中殺。<br>月をまたぐ大きな判断は来月以降に";
+    }
   }else{
+    // 天中殺の影響なし
     box.classList.add("normal");mEl.className="st-main ok";
-    mEl.textContent="今日は天中殺ではありません";
-    nEl.textContent="今日はあなたの天中殺の支と重なる干支はありません。";
+    mEl.textContent="今日は天中殺の影響なし";
+    nEl.innerHTML=dayHint+"。年・月・日いずれもあなたの天中殺の支と重なっていません";
   }
 
   var detHtml="";
@@ -657,15 +693,17 @@ document.getElementById('btn-calc').addEventListener('click',function(){
 
   var dEl=document.getElementById('d-period');
   dEl.className="per-val";
+  // 日天中殺は必ず連続2日(ペア)で来る。最低4日=2ペアを表示するため
+  // ペアが完結するまで検索を続ける(4日拾ったら止める)
   var hits2=[];
   var base=new Date(TODAY_Y,TODAY_M-1,TODAY_D);
-  for(var di=0;di<31;di++){
+  for(var di=0;di<45;di++){
     var dd=new Date(base);
     dd.setDate(dd.getDate()+di);
     var dk=kanshi(dd.getFullYear(),dd.getMonth()+1,dd.getDate());
     if(dk.dshi===b1||dk.dshi===b2){
       hits2.push((dd.getMonth()+1)+"/"+dd.getDate()+"("+dk.dkan+dk.dshi+")");
-      if(hits2.length>=3)break;
+      if(hits2.length>=4)break;
     }
   }
   dEl.textContent=hits2.length>0?hits2.join("　"):"—";
