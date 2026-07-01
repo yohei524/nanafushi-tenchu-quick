@@ -207,29 +207,6 @@ body{font-family:"Noto Serif JP","YuMincho","Hiragino Mincho ProN",serif;backgro
   <div class="k-kanshi" id="k-kanshi"></div>
   <div class="k-gogyo" id="k-gogyo"></div>
   <div id="k-alert"></div>
-  <div class="k-flow" id="k-flow" style="display:none;">
-    <div class="k-flow-lbl">今日の運気(12段階)</div>
-    <div class="k-flow-stage" id="k-flow-stage"></div>
-    <div class="k-flow-hint" id="k-flow-hint"></div>
-    <!-- カードめくり画像 -->
-    <div class="k-card-wrap">
-      <div class="k-card" id="k-card">
-        <div class="k-card-face k-card-front">
-          <div class="k-card-front-inner">
-            <div class="kf-marker">㐂</div>
-            <div class="kf-label">TAP TO REVEAL</div>
-          </div>
-        </div>
-        <div class="k-card-face k-card-back">
-          <img id="k-card-img" src="" alt="旅の段階">
-          <div class="k-card-caption" id="k-card-caption"></div>
-        </div>
-      </div>
-    </div>
-    <div class="k-recheck" id="k-recheck" style="display:none;">
-      <button class="k-recheck-btn" id="k-recheck-btn">別の生年月日で見る</button>
-    </div>
-  </div>
 </section>
 
 
@@ -269,6 +246,32 @@ body{font-family:"Noto Serif JP","YuMincho","Hiragino Mincho ProN",serif;backgro
     <div class="t-name" id="res-name">—</div>
     <div class="t-dir" id="res-dir">—</div>
     <div class="t-mis" id="res-mis">—</div>
+  </section>
+
+  <!-- 今日の運気(12段階旅フロー+カードめくり画像) -->
+  <section class="sec">
+    <div class="k-flow" id="k-flow" style="display:none;">
+      <div class="k-flow-lbl">今日の運気(12段階)</div>
+      <div class="k-flow-stage" id="k-flow-stage"></div>
+      <div class="k-flow-hint" id="k-flow-hint"></div>
+      <div class="k-card-wrap">
+        <div class="k-card" id="k-card">
+          <div class="k-card-face k-card-front">
+            <div class="k-card-front-inner">
+              <div class="kf-marker">㐂</div>
+              <div class="kf-label">TAP TO REVEAL</div>
+            </div>
+          </div>
+          <div class="k-card-face k-card-back">
+            <img id="k-card-img" src="" alt="旅の段階">
+            <div class="k-card-caption" id="k-card-caption"></div>
+          </div>
+        </div>
+      </div>
+      <div class="k-recheck" id="k-recheck" style="display:none;">
+        <button class="k-recheck-btn" id="k-recheck-btn">別の生年月日で見る</button>
+      </div>
+    </div>
   </section>
 
   <section class="sec">
@@ -719,11 +722,12 @@ document.getElementById('btn-calc').addEventListener('click',function(){
   document.getElementById('types-grid').innerHTML=html2;
   window._myResult={name:t.name,dir:t.dir,mis:t.mis,ess:t.ess,imp:t.imp};
   rEl.style.display="block";
-  // 初回入力時は日付ブロック(旅フロー画像)へスクロールしてめくれエフェクトを見せる
+  // 初回入力時は結果セクションの先頭(あなたのタイプ)からスクロール
+  // タイプを見せた直後に旅フロー画像がめくれるので、自然と目に入る
   // 復元モードではスクロールしない
   if(!window._restoreMode){
     setTimeout(function(){
-      document.getElementById('k-flow').scrollIntoView({behavior:"smooth",block:"start"});
+      rEl.scrollIntoView({behavior:"smooth",block:"start"});
     },100);
   }
 });
